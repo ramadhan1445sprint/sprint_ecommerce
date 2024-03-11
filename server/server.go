@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/controller"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/middleware"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
 )
@@ -29,6 +30,8 @@ func (s *Server) Run() {
 func (s *Server) RegisterRoute() {
 	mainRoute := s.app.Group("/v1")
 	registerUserController(mainRoute, s.db)
+	mainRoute.Use(middleware.Authorization)
+	// put another route below
 }
 
 func registerUserController(r fiber.Router, db *sqlx.DB) {
