@@ -1,5 +1,7 @@
 package entity
 
+import "github.com/golang-jwt/jwt/v5"
+
 type User struct {
 	Id       string `db:"id"`
 	Name     string `json:"name"`
@@ -10,4 +12,15 @@ type User struct {
 type Credential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type JWTPayload struct {
+	Username string
+	Name     string
+}
+
+type JWTClaims struct {
+	Username string
+	Name     string
+	jwt.RegisteredClaims
 }
