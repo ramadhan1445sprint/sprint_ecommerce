@@ -28,16 +28,13 @@ func (s *Server) Run() {
 
 func (s *Server) RegisterRoute() {
 	mainRoute := s.app.Group("/v1")
-	registerProducRouter(mainRoute, s.db)
+	registerUserController(mainRoute, s.db)
 }
 
-func registerProducRouter(r fiber.Router, db *sqlx.DB) {
-	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
-	prodRouter := r.Group("/products")
+func registerUserController(r fiber.Router, db *sqlx.DB) {
+	ctr := controller.NewUserController(svc.NewUserSvc(repo.NewUserRepo(db)))
+	userGroup := r.Group("/user")
 
-	prodRouter.Get("/", c.Get)
-	// prodRouter.Get("/:id", c.Get)
-	// prodRouter.Post("/", c.Post)
-	// prodRouter.Put("/:id", c.Put)
-	// prodRouter.Delete("/:id", c.Delete)
+	userGroup.Post("/register", ctr.Register)
+	userGroup.Post("/login", ctr.Login)
 }
