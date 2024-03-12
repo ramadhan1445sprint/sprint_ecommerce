@@ -12,27 +12,27 @@ func (e CustomError) Status() int {
 	return e.status
 }
 
-func NewBadRequestError(message string) error {
+func NewBadRequestError(message string) CustomError {
 	return CustomError{message: message, status: 400}
 }
 
-func NewUnauthorizedError(message string) error {
+func NewUnauthorizedError(message string) CustomError {
 	return CustomError{message: message, status: 401}
 }
 
-func NewForbiddenError(message string) error {
+func NewForbiddenError(message string) CustomError {
 	return CustomError{message: message, status: 403}
 }
 
-func NewNotFoundError(message string) error {
+func NewNotFoundError(message string) CustomError {
 	return CustomError{message: message, status: 404}
 }
 
-func NewConflictError(message string) error {
+func NewConflictError(message string) CustomError {
 	return CustomError{message: message, status: 409}
 }
 
 
-func NewInternalServerError(message string) error {
+func NewInternalServerError(message string) CustomError {
 	return CustomError{message: message, status: 500}
 }
