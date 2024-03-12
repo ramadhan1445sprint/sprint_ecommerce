@@ -33,11 +33,11 @@ func (s *Server) RegisterRoute() {
 
 func registerProducRouter(r fiber.Router, db *sqlx.DB) {
 	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
-	prodRouter := r.Group("/products")
+	prodRouter := r.Group("/product")
 
-	prodRouter.Get("/", c.Get)
-	// prodRouter.Get("/:id", c.Get)
-	// prodRouter.Post("/", c.Post)
-	// prodRouter.Put("/:id", c.Put)
-	// prodRouter.Delete("/:id", c.Delete)
+	// prodRouter.Get("/", c.Get)
+	prodRouter.Get("/:productId", c.GetDetailProduct)
+	prodRouter.Post("/", c.CreateProduct)
+	prodRouter.Patch("/:productId", c.UpdateProduct)
+	prodRouter.Delete("/:productId", c.DeleteProduct)
 }

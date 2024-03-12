@@ -15,7 +15,7 @@ func main() {
 
 	// db connection
 	db, err := database.NewDatabase()
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
