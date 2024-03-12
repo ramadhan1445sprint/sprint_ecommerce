@@ -28,7 +28,6 @@ func ValidateCondition(fl validator.FieldLevel) bool {
 func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
-	// Create new Book struct
 	product := &repo.Product{}
 
 	// Check, if received JSON data is valid.
@@ -39,8 +38,8 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 	}
 
 	product.ID = uuid.New()
-	product.CreatedAt = time.Now()
-	product.UpdatedAt = time.Now()
+	product.CreatedAt = time.Now().UTC()
+	product.UpdatedAt = time.Now().UTC()
 
 	validate := validator.New()
 
@@ -68,7 +67,6 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
-	// Create new Book struct
 	product := &repo.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
@@ -94,7 +92,7 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 	}
 
 	product.ID = id
-	product.UpdatedAt = time.Now()
+	product.UpdatedAt = time.Now().UTC()
 
 	validate := validator.New()
 
@@ -102,7 +100,6 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 
 	// Validate book fields.
 	if err := validate.Struct(product); err != nil {
-		// Return, if some fields are not valid.
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": utils.ValidatorErrors(err),
 		})
@@ -121,6 +118,8 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
+	// cek authenthication
+
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -145,7 +144,6 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
-	// Create new Book struct
 	product := &repo.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
@@ -173,5 +171,34 @@ func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"message": "product deleted successfully",
+	})
+}
+
+func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
+	// cek authenthication
+
+	// Extract keys from the query parameters map
+	keys := &repo.Key{}
+
+	var products []repo.Product
+
+	// Check, if received JSON data is valid.
+	if err := ctx.QueryParser(keys); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	products, err := c.svc.GetListProduct(*keys)
+	if err != nil {
+		return ctx.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Return status 200 OK.
+	return ctx.JSON(fiber.Map{
+		"message": "ok",
+		"data":    products,
 	})
 }

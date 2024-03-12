@@ -10,6 +10,7 @@ type SvcInterface interface {
 	GetDetailProduct(id uuid.UUID) (repo.Product, error)
 	UpdateProduct(product repo.Product) error
 	DeleteProduct(id uuid.UUID) error
+	GetListProduct(keys repo.Key) ([]repo.Product, error)
 }
 
 func NewSvc(repo repo.RepoInterface) SvcInterface {
@@ -54,4 +55,13 @@ func (s *svc) DeleteProduct(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (s *svc) GetListProduct(keys repo.Key) ([]repo.Product, error) {
+	product, err := s.repo.GetListProduct(keys)
+	if err != nil {
+		return product, err
+	}
+
+	return product, nil
 }

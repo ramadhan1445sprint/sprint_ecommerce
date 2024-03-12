@@ -35,7 +35,7 @@ func registerProducRouter(r fiber.Router, db *sqlx.DB) {
 	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
 	prodRouter := r.Group("/product")
 
-	// prodRouter.Get("/", c.Get)
+	prodRouter.Get("/", c.GetListProduct)
 	prodRouter.Get("/:productId", c.GetDetailProduct)
 	prodRouter.Post("/", c.CreateProduct)
 	prodRouter.Patch("/:productId", c.UpdateProduct)

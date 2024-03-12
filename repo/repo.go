@@ -1,6 +1,9 @@
 package repo
 
 import (
+	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +16,7 @@ type RepoInterface interface {
 	GetDetailProduct(id uuid.UUID) (Product, error)
 	UpdateProduct(product Product) error
 	DeleteProduct(id uuid.UUID) error
+	GetListProduct(keys Key) ([]Product, error)
 }
 
 func NewRepo(db *sqlx.DB) RepoInterface {
@@ -36,12 +40,27 @@ type Product struct {
 	UpdatedAt     time.Time `db:"updated_at" json:"updated_at"`
 }
 
+type Key struct {
+	UserOnly       *bool    `json:"userOnly"`
+	Limit          *int     `json:"limit"`
+	Offset         *int     `json:"offset"`
+	Tags           []string `json:"tags"`
+	Condition      *string  `json:"condition"`
+	ShowEmptyStock *bool    `json:"showEmptyStock"`
+	MaxPrice       *float64 `json:"maxPrice"`
+	MinPrice       *float64 `json:"minPrice"`
+	SortBy         *string  `json:"sortBy"`
+	OrderBy        *string  `json:"orderBy"`
+	Search         *string  `json:"search"`
+}
+
 func (r *repo) CreateProduct(product Product) error {
 	query := `INSERT INTO product (id, name, price, stock, image_url, condition, is_purchasable, tags, created_at, updated_at)
                VALUES (:id, :name, :price, :stock, :image_url, :condition, :is_purchasable, :tags, :created_at, :updated_at)`
 
 	_, err := r.db.NamedExec(query, &product)
 	if err != nil {
+		log.Println("Error executing query:", err)
 		return err
 	}
 
@@ -56,6 +75,7 @@ func (r *repo) GetDetailProduct(id uuid.UUID) (Product, error) {
 	// Query for a single row
 	err := r.db.QueryRowx(query, id).Scan(&tags)
 	if err != nil {
+		log.Println("Error executing query:", err)
 		return product, err
 	}
 
@@ -78,6 +98,7 @@ func (r *repo) GetDetailProduct(id uuid.UUID) (Product, error) {
 		&product.IsPurchasable,
 	)
 	if err != nil {
+		log.Println("Error executing query:", err)
 		return product, err
 	}
 
@@ -93,6 +114,7 @@ func (r *repo) UpdateProduct(product Product) error {
 
 	_, err := r.db.NamedExec(query, &product)
 	if err != nil {
+		log.Println("Error executing query:", err)
 		return err
 	}
 
@@ -104,8 +126,83 @@ func (r *repo) DeleteProduct(id uuid.UUID) error {
 
 	_, err := r.db.Exec(query, id)
 	if err != nil {
+		log.Println("Error executing query:", err)
 		return err
 	}
 
 	return nil
+}
+
+func (r *repo) GetListProduct(keys Key) ([]Product, error) {
+	// var tags pgtype.VarcharArray
+	var conditions []string
+
+	if keys.MaxPrice != nil && keys.MinPrice != nil {
+		conditions = append(conditions, fmt.Sprintf("price BETWEEN %.2f AND %.2f", *keys.MinPrice, *keys.MaxPrice))
+	}
+
+	if keys.Condition != nil {
+		conditions = append(conditions, fmt.Sprintf("condition = '%s'", *keys.Condition))
+	}
+
+	if keys.ShowEmptyStock != nil {
+		if *keys.ShowEmptyStock {
+			conditions = append(conditions, "stock = 0")
+		} else {
+			conditions = append(conditions, "stock > 0")
+		}
+	}
+
+	if len(keys.Tags) > 0 {
+		var tagConditions []string
+		for _, tag := range keys.Tags {
+			tagConditions = append(tagConditions, fmt.Sprintf("'%s'", tag))
+		}
+		conditions = append(conditions, fmt.Sprintf("ARRAY[%s] && tags", strings.Join(tagConditions, ",")))
+	}
+
+	if keys.Search != nil {
+		conditions = append(conditions, fmt.Sprintf("name LIKE '%%%s%%'", *keys.Search))
+	}
+
+	// Check if any conditions were provided
+	whereClause := ""
+	if len(conditions) > 0 {
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	orderByClause := ""
+	if keys.OrderBy != nil && keys.SortBy != nil {
+		orderByClause = fmt.Sprintf("ORDER BY %s %s", *keys.SortBy, *keys.OrderBy)
+	}
+
+	limitClause := ""
+	if keys.Limit != nil {
+		limitClause = fmt.Sprintf("LIMIT %d", *keys.Limit)
+	}
+
+	offsetClause := ""
+	if keys.Offset != nil {
+		offsetClause = fmt.Sprintf("OFFSET %d", *keys.Offset)
+	}
+
+	query := fmt.Sprintf(`
+        SELECT id, name, price, stock, image_url, condition, is_purchasable
+        FROM product
+        %s
+        %s
+        %s
+        %s`, whereClause, orderByClause, limitClause, offsetClause)
+
+	fmt.Println(query)
+
+	// Execute the query
+	var products []Product
+	err := r.db.Select(&products, query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return products, err
+	}
+
+	return products, nil
 }
