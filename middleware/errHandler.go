@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/ramadhan1445sprint/sprint_ecommerce/err"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 )
 
-func ErrorHandler(ctx *fiber.Ctx, rawErr error) error {
+func ErrorHandler(ctx *fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError
-	if customErr, ok := rawErr.(err.CustomError); ok {
+	if customErr, ok := err.(customErr.CustomError); ok {
 		code = customErr.Status()
 		return ctx.Status(code).JSON(fiber.Map{
 			"message": customErr.Error(),
@@ -15,6 +15,6 @@ func ErrorHandler(ctx *fiber.Ctx, rawErr error) error {
 	}
 
 	return ctx.Status(code).JSON(fiber.Map{
-		"message": rawErr.Error(),
+		"message": err.Error(),
 	})
 }
