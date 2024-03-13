@@ -15,10 +15,10 @@ func main() {
 
 	// db connection
 	db, err := database.NewDatabase()
-
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	// generate new server instance
 	s := server.NewServer(db)
