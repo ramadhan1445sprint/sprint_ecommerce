@@ -10,6 +10,10 @@ import (
 
 func Authorization(ctx *fiber.Ctx) error {
 	auth := ctx.Get("Authorization")
+	if auth == "" {
+		return customErr.NewUnauthorizedError("token not found")
+	}
+
 	splitted := strings.Split(auth, " ")
 
 	if splitted[0] != "Bearer" {
@@ -21,6 +25,7 @@ func Authorization(ctx *fiber.Ctx) error {
 		return customErr.NewUnauthorizedError(err.Error())
 	}
 
+	ctx.Locals("user_id", payload.Id)
 	ctx.Locals("username", payload.Username)
 	ctx.Locals("name", payload.Name)
 	return ctx.Next()

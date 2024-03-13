@@ -8,10 +8,11 @@ import (
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 )
 
-func GenerateToken(username, name string) (string, error) {
+func GenerateToken(id, username, name string) (string, error) {
 	secret := config.GetString("JWT_SECRET")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, entity.JWTClaims{
+		Id:       id,
 		Username: username,
 		Name:     name,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -40,6 +41,7 @@ func VerifyToken(token string) (*entity.JWTPayload, error) {
 	}
 
 	payload := &entity.JWTPayload{
+		Id:       claims.Id,
 		Username: claims.Username,
 		Name:     claims.Name,
 	}
