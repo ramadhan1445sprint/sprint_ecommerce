@@ -15,7 +15,9 @@ type Server struct {
 }
 
 func NewServer(db *sqlx.DB) *Server {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler,
+	})
 
 	return &Server{
 		app: app,
