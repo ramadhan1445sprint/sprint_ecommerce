@@ -15,11 +15,13 @@ type Credential struct {
 }
 
 type JWTPayload struct {
+	Id       string
 	Username string
 	Name     string
 }
 
 type JWTClaims struct {
+	Id       string
 	Username string
 	Name     string
 	jwt.RegisteredClaims
