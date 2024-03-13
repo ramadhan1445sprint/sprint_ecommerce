@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/crypto"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 )
 
 func Authorization(ctx *fiber.Ctx) error {
@@ -12,16 +13,12 @@ func Authorization(ctx *fiber.Ctx) error {
 	splitted := strings.Split(auth, " ")
 
 	if splitted[0] != "Bearer" {
-		return ctx.JSON(fiber.Map{
-			"message": "invalid token",
-		})
+		return customErr.NewUnauthorizedError("invalid token")
 	}
 
 	payload, err := crypto.VerifyToken(splitted[1])
 	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return customErr.NewUnauthorizedError(err.Error())
 	}
 
 	ctx.Locals("username", payload.Username)
