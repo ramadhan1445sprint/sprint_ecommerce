@@ -137,7 +137,19 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 	// Return status 200 OK.
 	return ctx.JSON(fiber.Map{
 		"message": "ok",
-		"data":    product,
+		"data": fiber.Map{
+			"product": fiber.Map{
+				"productId":      product.ID,
+				"name":           product.Name,
+				"price":          product.Price,
+				"imageUrl":       product.ImageUrl,
+				"stock":          product.Stock,
+				"condition":      product.Condition,
+				"tags":           product.Tags,
+				"isPurchaseable": product.IsPurchasable,
+			},
+			"seller": "",
+		},
 	})
 }
 
@@ -181,6 +193,7 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 	keys := &repo.Key{}
 
 	var products []repo.Product
+	var limit, offset int = 0, 0
 
 	// Check, if received JSON data is valid.
 	if err := ctx.QueryParser(keys); err != nil {
@@ -196,9 +209,18 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if keys.Limit != nil && keys.Offset != nil {
+		limit = *keys.Limit
+		offset = *keys.Offset
+	}
+
 	// Return status 200 OK.
 	return ctx.JSON(fiber.Map{
 		"message": "ok",
 		"data":    products,
+		"meta": fiber.Map{
+			"limit":  limit,
+			"offset": offset,
+		},
 	})
 }

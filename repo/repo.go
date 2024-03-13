@@ -204,5 +204,32 @@ func (r *repo) GetListProduct(keys Key) ([]Product, error) {
 		return products, err
 	}
 
+	var productIDs []string
+	for _, p := range products {
+		productIDs = append(productIDs, fmt.Sprintf("'%s'", p.ID))
+	}
+	inClause := strings.Join(productIDs, ", ")
+
+	var tags []pgtype.VarcharArray
+	query1 := fmt.Sprintf(`SELECT tags FROM product WHERE id in (%s)`, inClause)
+
+	// Query for a single row
+	err = r.db.Select(&tags, query1)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return products, err
+	}
+
+	// Extract tags from VarcharArray
+	for i, tagArray := range tags {
+		var tagsSlice []string
+		for _, tag := range tagArray.Elements {
+			if tag.Status != pgtype.Null {
+				tagsSlice = append(tagsSlice, string(tag.String))
+				products[i].Tags = tagsSlice
+			}
+		}
+	}
+
 	return products, nil
 }
