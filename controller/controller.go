@@ -2,12 +2,12 @@ package controller
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/utils"
 )
@@ -26,26 +26,19 @@ func ValidateCondition(fl validator.FieldLevel) bool {
 }
 
 func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
-	// cek authenthication
-
-	product := &repo.Product{}
+	product := &entity.Product{}
 
 	// Check, if received JSON data is valid.
 	if err := ctx.BodyParser(product); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
-	product.ID = uuid.New()
-	product.CreatedAt = time.Now().UTC()
-	product.UpdatedAt = time.Now().UTC()
+	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
+	product.UserID = userId
 
 	validate := validator.New()
-
 	validate.RegisterValidation("validCondition", ValidateCondition)
 
-	// Validate book fields.
 	if err := validate.Struct(product); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": utils.ValidatorErrors(err),
@@ -54,9 +47,7 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 
 	err := c.svc.CreateProduct(*product)
 	if err != nil {
-		return ctx.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return customErr.NewInternalServerError(err.Error())
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -67,38 +58,31 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
-	product := &repo.Product{}
+	product := &entity.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	// check productId is found or not
 	*product, err = c.svc.GetDetailProduct(id)
 	if err != nil || product.ID == uuid.Nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "product with the given ID is not found",
-		})
+		return customErr.NewBadRequestError("product not found")
 	}
 
 	// Check, if received JSON data is valid.
 	if err := ctx.BodyParser(product); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
+	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
+	product.UserID = userId
 	product.ID = id
-	product.UpdatedAt = time.Now().UTC()
 
 	validate := validator.New()
-
 	validate.RegisterValidation("validCondition", ValidateCondition)
 
-	// Validate book fields.
 	if err := validate.Struct(product); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": utils.ValidatorErrors(err),
@@ -107,9 +91,7 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 
 	err = c.svc.UpdateProduct(*product)
 	if err != nil {
-		return ctx.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return customErr.NewInternalServerError(err.Error())
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -122,16 +104,12 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	product, err := c.svc.GetDetailProduct(id)
-	if err != nil || product.ID == uuid.Nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "product with the given ID is not found",
-		})
+	if err != nil {
+		return customErr.NewBadRequestError("product not found")
 	}
 
 	// Return status 200 OK.
@@ -156,29 +134,23 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
-	product := &repo.Product{}
+	product := &entity.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	// check productId is found or not
 	*product, err = c.svc.GetDetailProduct(id)
 	fmt.Println(product)
 	if err != nil || product.ID == uuid.Nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "product with the given ID is not found",
-		})
+		return customErr.NewBadRequestError("product not found")
 	}
 
 	err = c.svc.DeleteProduct(id)
 	if err != nil {
-		return ctx.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return customErr.NewInternalServerError(err.Error())
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -190,23 +162,21 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 	// cek authenthication
 
 	// Extract keys from the query parameters map
-	keys := &repo.Key{}
+	keys := &entity.Key{}
 
-	var products []repo.Product
+	var products []entity.Product
 	var limit, offset int = 0, 0
+
+	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
 
 	// Check, if received JSON data is valid.
 	if err := ctx.QueryParser(keys); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
-	products, err := c.svc.GetListProduct(*keys)
+	products, err := c.svc.GetListProduct(*keys, userId)
 	if err != nil {
-		return ctx.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return customErr.NewInternalServerError(err.Error())
 	}
 
 	if keys.Limit != nil && keys.Offset != nil {

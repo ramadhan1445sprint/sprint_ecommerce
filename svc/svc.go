@@ -2,15 +2,16 @@ package svc
 
 import (
 	"github.com/google/uuid"
+	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
 )
 
 type SvcInterface interface {
-	CreateProduct(product repo.Product) error
-	GetDetailProduct(id uuid.UUID) (repo.Product, error)
-	UpdateProduct(product repo.Product) error
+	CreateProduct(product entity.Product) error
+	GetDetailProduct(id uuid.UUID) (entity.Product, error)
+	UpdateProduct(product entity.Product) error
 	DeleteProduct(id uuid.UUID) error
-	GetListProduct(keys repo.Key) ([]repo.Product, error)
+	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
 }
 
 func NewSvc(repo repo.RepoInterface) SvcInterface {
@@ -21,7 +22,7 @@ type svc struct {
 	repo repo.RepoInterface
 }
 
-func (s *svc) CreateProduct(product repo.Product) error {
+func (s *svc) CreateProduct(product entity.Product) error {
 	err := s.repo.CreateProduct(product)
 	if err != nil {
 		return err
@@ -30,7 +31,7 @@ func (s *svc) CreateProduct(product repo.Product) error {
 	return nil
 }
 
-func (s *svc) GetDetailProduct(id uuid.UUID) (repo.Product, error) {
+func (s *svc) GetDetailProduct(id uuid.UUID) (entity.Product, error) {
 	product, err := s.repo.GetDetailProduct(id)
 	if err != nil {
 		return product, err
@@ -39,7 +40,7 @@ func (s *svc) GetDetailProduct(id uuid.UUID) (repo.Product, error) {
 	return product, nil
 }
 
-func (s *svc) UpdateProduct(product repo.Product) error {
+func (s *svc) UpdateProduct(product entity.Product) error {
 	err := s.repo.UpdateProduct(product)
 	if err != nil {
 		return err
@@ -57,8 +58,8 @@ func (s *svc) DeleteProduct(id uuid.UUID) error {
 	return nil
 }
 
-func (s *svc) GetListProduct(keys repo.Key) ([]repo.Product, error) {
-	product, err := s.repo.GetListProduct(keys)
+func (s *svc) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error) {
+	product, err := s.repo.GetListProduct(keys, userId)
 	if err != nil {
 		return product, err
 	}
