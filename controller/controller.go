@@ -183,6 +183,11 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 		return customErr.NewInternalServerError(err.Error())
 	}
 
+	count, err := c.svc.GetCountProduct()
+	if err != nil {
+		return customErr.NewBadRequestError("error query count product")
+	}
+
 	if keys.Limit != nil && keys.Offset != nil {
 		limit = *keys.Limit
 		offset = *keys.Offset
@@ -195,6 +200,7 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 		"meta": fiber.Map{
 			"limit":  limit,
 			"offset": offset,
+			"total":  count,
 		},
 	})
 }

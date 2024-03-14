@@ -19,6 +19,7 @@ type RepoInterface interface {
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
 	GetPurchaseCount(id uuid.UUID) (int, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
+	GetCountProduct() (int, error)
 }
 
 func NewRepo(db *sqlx.DB) RepoInterface {
@@ -114,6 +115,20 @@ func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, err
 	}
 
 	return productPayment, err
+}
+
+func (r *repo) GetCountProduct() (int, error) {
+	var count int
+	query := "SELECT COUNT(*) FROM products"
+
+	// Query sum quantity
+	err := r.db.QueryRow(query).Scan(&count)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return 0, err
+	}
+
+	return count, err
 }
 
 func (r *repo) UpdateProduct(product entity.Product) error {
