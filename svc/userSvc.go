@@ -94,7 +94,7 @@ func (s *userSvc) Login(creds entity.Credential) (*entity.User, string, error) {
 	user, err := s.repo.GetUser(creds.Username)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
-			return nil, "", customErr.NewBadRequestError("username not found")
+			return nil, "", customErr.NewNotFoundError("username not found")
 		}
 		return nil, "", err
 	}
