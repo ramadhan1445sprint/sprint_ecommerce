@@ -5,15 +5,15 @@ import (
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
 )
 
-type Controller struct {
-	svc svc.SvcInterface
+type healthController struct {
+	svc svc.HealthSvcInterface
 }
 
-func NewController(svc svc.SvcInterface) *Controller {
-	return &Controller{svc: svc}
+func NewHealthController(svc svc.HealthSvcInterface) *healthController {
+	return &healthController{svc: svc}
 }
 
-func (c *Controller) Get(ctx *fiber.Ctx) error {
+func (c *healthController) Get(ctx *fiber.Ctx) error {
 	status, err := c.svc.GetStatus()
 	if err != nil {
 		return err
@@ -21,6 +21,6 @@ func (c *Controller) Get(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{
 		"message": "success",
-		"status": status,
+		"status":  status,
 	})
 }
