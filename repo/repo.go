@@ -17,6 +17,8 @@ type RepoInterface interface {
 	UpdateProduct(product entity.Product) error
 	DeleteProduct(id uuid.UUID) error
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
+	GetPurchaseCount(id uuid.UUID) (int, error)
+	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 }
 
 func NewRepo(db *sqlx.DB) RepoInterface {
@@ -60,9 +62,10 @@ func (r *repo) GetDetailProduct(id uuid.UUID) (entity.Product, error) {
 		}
 	}
 
-	query1 := "SELECT id, name, price, stock, image_url, condition, is_purchasable FROM products WHERE id = $1"
+	query1 := "SELECT id, user_id, name, price, stock, image_url, condition, is_purchasable FROM products WHERE id = $1"
 	err = r.db.QueryRowx(query1, id).Scan(
 		&product.ID,
+		&product.UserID,
 		&product.Name,
 		&product.Price,
 		&product.Stock,
@@ -78,6 +81,39 @@ func (r *repo) GetDetailProduct(id uuid.UUID) (entity.Product, error) {
 	product.Tags = tagsSlice
 
 	return product, nil
+}
+
+func (r *repo) GetPurchaseCount(id uuid.UUID) (int, error) {
+	var total int
+	query := fmt.Sprintf(`SELECT SUM(quantity) FROM payments WHERE product_id = '%s'`, id)
+
+	// Query sum quantity
+	err := r.db.QueryRow(query).Scan(&total)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return 0, err
+	}
+
+	return total, err
+}
+
+func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error) {
+	var productPayment entity.ProductPayment
+
+	query := fmt.Sprintf(`select u."name", sum(p2.quantity) as totalSold from products p
+											inner join users u on p.user_id = u.id
+											inner join payments p2 ON p.id = p2.product_id
+											where u.id = '%s'
+											group by u.id`, userId)
+
+	// Query sum quantity
+	err := r.db.QueryRow(query).Scan(&productPayment.Name, &productPayment.TotalSold)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return productPayment, err
+	}
+
+	return productPayment, err
 }
 
 func (r *repo) UpdateProduct(product entity.Product) error {
@@ -167,7 +203,7 @@ func (r *repo) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produ
 	}
 
 	query := fmt.Sprintf(`
-        SELECT id, name, price, stock, image_url, condition, is_purchasable
+        SELECT id, user_id, name, price, stock, image_url, condition, is_purchasable
         FROM products
         %s
 				%s

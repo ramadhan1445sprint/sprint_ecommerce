@@ -12,6 +12,8 @@ type SvcInterface interface {
 	UpdateProduct(product entity.Product) error
 	DeleteProduct(id uuid.UUID) error
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
+	GetPurchaseCount(id uuid.UUID) (int, error)
+	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 }
 
 func NewSvc(repo repo.RepoInterface) SvcInterface {
@@ -65,4 +67,22 @@ func (s *svc) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produc
 	}
 
 	return product, nil
+}
+
+func (s *svc) GetPurchaseCount(id uuid.UUID) (int, error) {
+	total, err := s.repo.GetPurchaseCount(id)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (s *svc) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error) {
+	productPayment, err := s.repo.GetProductSoldTotal(userId)
+	if err != nil {
+		return productPayment, err
+	}
+
+	return productPayment, nil
 }

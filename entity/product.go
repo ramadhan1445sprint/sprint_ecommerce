@@ -12,7 +12,7 @@ type Product struct {
 	Name          string    `db:"name" json:"name" validate:"required,max=60,min=5"`
 	Price         float64   `db:"price" json:"price" validate:"required,numeric,gte=0"`
 	Stock         int       `db:"stock" json:"stock" validate:"required,numeric,gte=0"`
-	ImageUrl      string    `db:"image_url" json:"imageUrl" validate:"required"`
+	ImageUrl      string    `db:"image_url" json:"imageUrl" validate:"required,url"`
 	Condition     string    `db:"condition" json:"condition" validate:"required,validCondition"`
 	IsPurchasable bool      `db:"is_purchasable" json:"isPurchasable"`
 	Tags          []string  `db:"tags" json:"tags" validate:"required"`
@@ -32,4 +32,9 @@ type Key struct {
 	SortBy         *string  `json:"sortBy"`
 	OrderBy        *string  `json:"orderBy"`
 	Search         *string  `json:"search"`
+}
+
+type ProductPayment struct {
+	Name      string `json:"name"`
+	TotalSold int    `json:"totalSold"`
 }

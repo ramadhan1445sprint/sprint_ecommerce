@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -56,8 +54,6 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
-	// cek authenthication
-
 	product := &entity.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
@@ -100,8 +96,6 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
-	// cek authenthication
-
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
 		return err
@@ -110,6 +104,16 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 	product, err := c.svc.GetDetailProduct(id)
 	if err != nil {
 		return customErr.NewBadRequestError("product not found")
+	}
+
+	total, err := c.svc.GetPurchaseCount(id)
+	if err != nil {
+		return customErr.NewInternalServerError("error query purchase count")
+	}
+
+	productPayment, err := c.svc.GetProductSoldTotal(product.UserID)
+	if err != nil {
+		return customErr.NewInternalServerError("error query sold count")
 	}
 
 	// Return status 200 OK.
@@ -125,15 +129,18 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 				"condition":      product.Condition,
 				"tags":           product.Tags,
 				"isPurchaseable": product.IsPurchasable,
+				"purchaseCount":  total,
 			},
-			"seller": "",
+			"seller": fiber.Map{
+				"name":             productPayment.Name,
+				"productSoldTotal": productPayment.TotalSold,
+				"bankAccounts":     "",
+			},
 		},
 	})
 }
 
 func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
-	// cek authenthication
-
 	product := &entity.Product{}
 
 	id, err := uuid.Parse(ctx.Params("productId"))
@@ -143,7 +150,6 @@ func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
 
 	// check productId is found or not
 	*product, err = c.svc.GetDetailProduct(id)
-	fmt.Println(product)
 	if err != nil || product.ID == uuid.Nil {
 		return customErr.NewBadRequestError("product not found")
 	}
@@ -159,8 +165,6 @@ func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
-	// cek authenthication
-
 	// Extract keys from the query parameters map
 	keys := &entity.Key{}
 
