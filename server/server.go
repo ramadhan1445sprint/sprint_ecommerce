@@ -95,8 +95,10 @@ func healthCheckRoute(r fiber.Router, db *sqlx.DB) {
 
 func productRoute(r fiber.Router, db *sqlx.DB) {
 	payment := controller.NewPaymentController(svc.NewPaymentSvc(repo.NewPaymentRepo(db)))
+	stock := controller.NewStockController(svc.NewStockSvc(repo.NewStockRepo(db)))
 	productRouter := r.Group("/product")
 	productRouter.Post("/:productId/buy", payment.CreatePayment)
+	productRouter.Post("/:productId/stock", stock.UpdateStock)
 }
 
 func bankAccountRoute(r fiber.Router, db *sqlx.DB) {

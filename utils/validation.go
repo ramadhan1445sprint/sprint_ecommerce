@@ -92,7 +92,7 @@ func ValidateUpdateBankRequest(req *entity.BankAccountUpdateRequest) (int, error
 		return 400, errors.New("bank id cant be null")
 	}
 
-	if *req.ID < 1 {
+	if *req.ID == "" {
 		return 400, errors.New("invalid bank id")
 	}
 
@@ -123,3 +123,22 @@ func ValidateUpdateBankRequest(req *entity.BankAccountUpdateRequest) (int, error
 	return 200, nil
 }
 
+func ValidateStockUpdateRequest(req *entity.StockUpdateRequest) (int, error) {
+	if req.Stock == nil {
+		return 400, errors.New("stock cant be null")
+	}
+
+	if *req.Stock < 1 {
+		return 400, errors.New("minimum stock is 0")
+	}
+
+	if req.ProductID == nil {
+		return 400, errors.New("product id cant be null")
+	}
+	
+	if *req.ProductID == "" {
+		return 400, errors.New("product id cant be empty")
+	}
+
+	return 200, nil
+}
