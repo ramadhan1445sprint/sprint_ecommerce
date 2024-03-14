@@ -20,7 +20,7 @@ func NewUserRepo(db *sqlx.DB) UserRepo {
 
 func (r *userRepo) GetUser(username string) (*entity.User, error) {
 	var user entity.User
-	err := r.db.Get(&user, "SELECT * FROM users WHERE username = $1", username)
+	err := r.db.Get(&user, "SELECT id, name, username, password FROM users WHERE username = $1", username)
 	if err != nil {
 		return nil, err
 	}

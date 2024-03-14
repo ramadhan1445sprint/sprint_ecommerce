@@ -105,7 +105,7 @@ func (s *userSvc) Login(creds entity.Credential) (*entity.User, string, error) {
 
 	err = crypto.VerifyPassword(creds.Password, user.Password)
 	if err != nil {
-		return nil, "", err
+		return nil, "", customErr.NewBadRequestError("wrong password!")
 	}
 
 	token, err := crypto.GenerateToken(user.Id, user.Username, user.Name)
