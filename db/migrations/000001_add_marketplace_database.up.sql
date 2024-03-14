@@ -2,14 +2,13 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(50) NOT NULL,
-    username VARCHAR(15) NOT NULL,
-    password VARCHAR(15) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT name_check CHECK (char_length(name) >= 5 AND char_length(name) <= 50),
-    CONSTRAINT username_check CHECK (char_length(username) >= 5 AND char_length(username) <= 15),
-    CONSTRAINT password_check CHECK (char_length(password) >= 5 AND char_length(password) <= 15)
+    CONSTRAINT username_check CHECK (char_length(username) >= 5 AND char_length(username) <= 15)
 );
 
 CREATE TABLE IF NOT EXISTS products(

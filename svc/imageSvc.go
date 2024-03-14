@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/config"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
@@ -35,7 +36,7 @@ func (i *imageSvc) UploadImage(file multipart.File, fileHeader *multipart.FileHe
 	splitted := strings.Split(fileHeader.Filename, ".")
 	ext := splitted[len(splitted)-1]
 	fileName := fmt.Sprintf("%s.%s", uuid, ext)
-	
+
 	if fileHeader.Size < 10*1024 || fileHeader.Size > 2*1024*1024 {
 		return "", customErr.NewBadRequestError("file size must be between 10KB and 2MB")
 	}
@@ -43,10 +44,10 @@ func (i *imageSvc) UploadImage(file multipart.File, fileHeader *multipart.FileHe
 		return "", customErr.NewBadRequestError("file must be in JPEG format")
 	}
 
-
 	input := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileName),
+		ACL:    types.ObjectCannedACLPublicRead,
 		Body:   file,
 	}
 
