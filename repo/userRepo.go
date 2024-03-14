@@ -7,7 +7,7 @@ import (
 
 type UserRepo interface {
 	GetUser(username string) (*entity.User, error)
-	CreateUser(name, username, password string) error
+	CreateUser(name, username, password string) (string, error)
 }
 
 type userRepo struct {
@@ -27,7 +27,13 @@ func (r *userRepo) GetUser(username string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) CreateUser(name, username, password string) error {
-	_, err := r.db.Exec("INSERT INTO users (name, username, password) VALUES ($1, $2, $3)", name, username, password)
-	return err
+func (r *userRepo) CreateUser(name, username, password string) (string, error) {
+	var id string
+	row := r.db.QueryRow("INSERT INTO users (name, username, password) VALUES ($1, $2, $3) RETURNING id", name, username, password)
+
+	if err := row.Scan(&id); err != nil {
+		return "", err
+	}
+
+	return id, nil
 }

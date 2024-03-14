@@ -63,17 +63,12 @@ func (s *userSvc) RegisterUser(user *entity.User) (string, error) {
 		return "", err
 	}
 
-	err = s.repo.CreateUser(user.Name, user.Username, hashedPassword)
+	uid, err := s.repo.CreateUser(user.Name, user.Username, hashedPassword)
 	if err != nil {
 		return "", err
 	}
 
-	user, err = s.repo.GetUser(user.Username)
-	if err != nil {
-		return "", err
-	}
-
-	token, err := crypto.GenerateToken(user.Id, user.Username, user.Name)
+	token, err := crypto.GenerateToken(uid, user.Username, user.Name)
 	if err != nil {
 		return "", err
 	}
