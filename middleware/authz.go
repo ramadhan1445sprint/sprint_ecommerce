@@ -17,12 +17,12 @@ func Authorization(ctx *fiber.Ctx) error {
 	splitted := strings.Split(auth, " ")
 
 	if splitted[0] != "Bearer" {
-		return customErr.NewUnauthorizedError("invalid token")
+		return customErr.NewForbiddenError("invalid token")
 	}
 
 	payload, err := crypto.VerifyToken(splitted[1])
 	if err != nil {
-		return customErr.NewUnauthorizedError(err.Error())
+		return customErr.NewForbiddenError(err.Error())
 	}
 
 	ctx.Locals("user_id", payload.Id)
