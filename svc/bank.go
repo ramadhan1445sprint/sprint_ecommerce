@@ -7,10 +7,10 @@ import (
 )
 
 type BankAccountSvcInterface interface {
-	GetBankAccount(userId int) ([]entity.BankAccountGetResponse, int, error)
-	CreateBankAccount(bankAccount *entity.BankAccountCreateRequest, userId int) (int, error)
+	GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error)
+	CreateBankAccount(bankAccount *entity.BankAccountCreateRequest, userId string) (int, error)
 	UpdateBankAccount(bankAccount *entity.BankAccountUpdateRequest) (int, error)
-	DeleteBankAccount(bankAccountID int) (int, error)
+	DeleteBankAccount(bankAccountID string) (int, error)
 }
 
 func NewBankAccounthSvc(repo repo.BankAccountRepoInterface) BankAccountSvcInterface {
@@ -21,7 +21,7 @@ type bankAccountSvc struct {
 	repo repo.BankAccountRepoInterface
 }
 
-func (s *bankAccountSvc) GetBankAccount(userId int) ([]entity.BankAccountGetResponse, int, error) {
+func (s *bankAccountSvc) GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error) {
 	res, err := s.repo.GetBankAccount(userId)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *bankAccountSvc) GetBankAccount(userId int) ([]entity.BankAccountGetResp
 	return resp, 200, nil
 }
 
-func (s *bankAccountSvc) CreateBankAccount(req *entity.BankAccountCreateRequest, userId int) (int, error) {
+func (s *bankAccountSvc) CreateBankAccount(req *entity.BankAccountCreateRequest, userId string) (int, error) {
 	status, err := utils.ValidateCreateBankRequest(req)
 
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *bankAccountSvc) UpdateBankAccount(req *entity.BankAccountUpdateRequest)
 	return 200, nil
 }
 
-func (s *bankAccountSvc) DeleteBankAccount(bankAccountID int) (int, error) {
+func (s *bankAccountSvc) DeleteBankAccount(bankAccountID string) (int, error) {
 	if err := s.repo.DeleteBankAccount(bankAccountID); err != nil {
 		var status int
 		if err.Error() == "bank account not found" {

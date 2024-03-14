@@ -6,20 +6,20 @@ import (
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
 )
 
-type paymentController struct {
-	svc svc.PaymentSvcInterface
+type stockController struct {
+	svc svc.StockSvcInterface
 }
 
-func NewPaymentController(svc svc.PaymentSvcInterface) *paymentController {
-	return &paymentController{svc: svc}
+func NewStockController(svc svc.StockSvcInterface) *stockController {
+	return &stockController{svc: svc}
 }
 
-func (c *paymentController) CreatePayment(ctx *fiber.Ctx) error {
+func (c *stockController) UpdateStock(ctx *fiber.Ctx) error {
 	var message string
 	
 	productId := ctx.Params("productId")
 
-	req := new(entity.PaymentCreateRequest)
+	req := new(entity.StockUpdateRequest)
 
 	if err := ctx.BodyParser(req); err != nil {
 		ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
@@ -27,7 +27,7 @@ func (c *paymentController) CreatePayment(ctx *fiber.Ctx) error {
 
 	req.ProductID = &productId
 
-	status, err := c.svc.CreatePayment(req)
+	status, err := c.svc.UpdateStock(req, productId)
 
 	if err != nil {
 		message = err.Error()

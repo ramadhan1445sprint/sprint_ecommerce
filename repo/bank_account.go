@@ -8,10 +8,10 @@ import (
 )
 
 type BankAccountRepoInterface interface {
-	GetBankAccount(userId int) ([]entity.BankAccount, error)
+	GetBankAccount(userId string) ([]entity.BankAccount, error)
 	CreateBankAccount(bankAccount *entity.BankAccount) error
 	UpdateBankAccount(bankAccount *entity.BankAccount) error
-	DeleteBankAccount(bankAccountID int) error
+	DeleteBankAccount(bankAccountID string) error
 }
 
 func NewBankAccountRepo(db *sqlx.DB) BankAccountRepoInterface {
@@ -22,10 +22,10 @@ type bankAccountRepo struct {
 	db *sqlx.DB
 }
 
-func (r *bankAccountRepo) GetBankAccount(userId int) ([]entity.BankAccount, error) {
+func (r *bankAccountRepo) GetBankAccount(userId string) ([]entity.BankAccount, error) {
 	var res []entity.BankAccount
 
-	r.db.Select(&res, "SELECT id, bank_name, account_name, account_number from bank_account where user_id = $1", userId)
+	r.db.Select(&res, "SELECT id, bank_name, account_name, account_number from bank_accounts where user_id = $1", userId)
 
 	if len(res) == 0 {
 		return nil, errors.New("bank account not found")
@@ -34,7 +34,7 @@ func (r *bankAccountRepo) GetBankAccount(userId int) ([]entity.BankAccount, erro
 }
 
 func (r *bankAccountRepo) CreateBankAccount(bankAccount *entity.BankAccount) error {
-	_, err := r.db.Exec("insert into bank_account (user_id, bank_name, account_name, account_number) values ($1, $2, $3, $4)", bankAccount.UserID, bankAccount.Name, bankAccount.AccountName, bankAccount.AccountNumber)
+	_, err := r.db.Exec("insert into bank_accounts (user_id, bank_name, account_name, account_number) values ($1, $2, $3, $4)", bankAccount.UserID, bankAccount.Name, bankAccount.AccountName, bankAccount.AccountNumber)
 
 	if err != nil {
 		return err
@@ -44,7 +44,11 @@ func (r *bankAccountRepo) CreateBankAccount(bankAccount *entity.BankAccount) err
 }
 
 func (r *bankAccountRepo) UpdateBankAccount(bankAccount *entity.BankAccount) error {
-	res, _ := r.db.Exec("UPDATE bank_account SET bank_name = $1, account_name = $2, account_number = $3 where id = $4", bankAccount.Name, bankAccount.AccountName, bankAccount.AccountNumber, bankAccount.ID)
+	res, err := r.db.Exec("UPDATE bank_accounts SET bank_name = $1, account_name = $2, account_number = $3 where id = $4", bankAccount.Name, bankAccount.AccountName, bankAccount.AccountNumber, bankAccount.ID)
+
+	if err != nil {
+		return err
+	}
 
 	rowsEffected, _ := res.RowsAffected()
 
@@ -55,8 +59,12 @@ func (r *bankAccountRepo) UpdateBankAccount(bankAccount *entity.BankAccount) err
 	return nil
 }
 
-func (r *bankAccountRepo) DeleteBankAccount(bankAccountID int) error {
-	res, _ := r.db.Exec("delete from bank_account where id = $1", bankAccountID)
+func (r *bankAccountRepo) DeleteBankAccount(bankAccountID string) error {
+	res, err := r.db.Exec("delete from bank_accounts where id = $1", bankAccountID)
+
+	if err != nil {
+		return err
+	}
 
 	rowsEffected, _ := res.RowsAffected()
 

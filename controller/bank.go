@@ -15,7 +15,7 @@ func NewBankAccountController(svc svc.BankAccountSvcInterface) *BankAccountContr
 }
 
 func (c *BankAccountController) GetBankAccount(ctx *fiber.Ctx) error {
-	userId := 1
+	userId := "43826207-2a72-40c5-a696-35cc66c32e2e"
 	res, status, err := c.svc.GetBankAccount(userId)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *BankAccountController) GetBankAccount(ctx *fiber.Ctx) error {
 
 func (c *BankAccountController) CreateBankAccount(ctx *fiber.Ctx) error {
 	var message string
-	userId := 1
+	userId := "43826207-2a72-40c5-a696-35cc66c32e2e"
 
 	req := new(entity.BankAccountCreateRequest)
 
@@ -58,11 +58,7 @@ func (c *BankAccountController) CreateBankAccount(ctx *fiber.Ctx) error {
 func (c *BankAccountController) UpdateBankAccount(ctx *fiber.Ctx) error {
 	var message string
 
-	bankAccountId, err := ctx.ParamsInt("bankAccountId")
-
-	if err != nil {
-		ctx.Status(500).JSON(fiber.Map{"message": "invalid bank id"})
-	}
+	bankAccountId := ctx.Params("bankAccountId")
 
 	req := new(entity.BankAccountUpdateRequest)
 
@@ -90,11 +86,7 @@ func (c *BankAccountController) UpdateBankAccount(ctx *fiber.Ctx) error {
 func (c *BankAccountController) DeleteBankAccount(ctx *fiber.Ctx) error {
 	var message string
 
-	bankAccountId, err := ctx.ParamsInt("bankAccountId")
-
-	if err != nil {
-		ctx.Status(500).JSON(fiber.Map{"message": "invalid bank id"})
-	}
+	bankAccountId := ctx.Params("bankAccountId")
 
 	status, err := c.svc.DeleteBankAccount(bankAccountId)
 
