@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/crypto"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 )
@@ -22,6 +24,9 @@ func Authorization(ctx *fiber.Ctx) error {
 
 	payload, err := crypto.VerifyToken(splitted[1])
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return customErr.NewUnauthorizedError("token expired")
+		}
 		return customErr.NewForbiddenError(err.Error())
 	}
 

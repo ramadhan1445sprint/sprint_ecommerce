@@ -1,8 +1,6 @@
 package svc
 
 import (
-	"errors"
-
 	"github.com/ramadhan1445sprint/sprint_ecommerce/crypto"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
@@ -54,7 +52,7 @@ func (s *userSvc) RegisterUser(user *entity.User) (string, error) {
 		}
 	}
 	if existingUser != nil {
-		return "", errors.New("username already exists")
+		return "", customErr.NewConflictError("username already exists")
 	}
 
 	// bcrypt user password
@@ -95,6 +93,9 @@ func (s *userSvc) Login(creds entity.Credential) (*entity.User, string, error) {
 
 	user, err := s.repo.GetUser(creds.Username)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, "", customErr.NewBadRequestError("username not found")
+		}
 		return nil, "", err
 	}
 
