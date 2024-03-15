@@ -20,6 +20,7 @@ type RepoInterface interface {
 	GetPurchaseCount(id uuid.UUID) (int, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 	GetCountProduct() (int, error)
+	GetBankAccount(userId string) ([]entity.BankAccount, error)
 }
 
 func NewRepo(db *sqlx.DB) RepoInterface {
@@ -262,4 +263,12 @@ func (r *repo) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produ
 	}
 
 	return products, nil
+}
+
+func (r *repo) GetBankAccount(userId string) ([]entity.BankAccount, error) {
+	var res []entity.BankAccount
+
+	r.db.Select(&res, "SELECT id, bank_name, account_name, account_number from bank_accounts where user_id = $1", userId)
+
+	return res, nil
 }
