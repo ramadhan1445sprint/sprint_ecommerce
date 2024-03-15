@@ -20,4 +20,10 @@
 # Go workspace file
 go.work
 
+# Environment Variable
 .env
+*.service
+setenv.sh
+
+# Binary
+main
