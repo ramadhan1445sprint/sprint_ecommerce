@@ -1,23 +1,20 @@
 package entity
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
 type Product struct {
-	ID            uuid.UUID `db:"id"`
-	UserID        uuid.UUID `db:"user_id"`
+	ID            uuid.UUID `db:"id" json:"productId"`
+	UserID        uuid.UUID `db:"user_id" json:"-"`
 	Name          string    `db:"name" json:"name" validate:"required,max=60,min=5"`
 	Price         float64   `db:"price" json:"price" validate:"required,numeric,gte=0"`
 	Stock         int       `db:"stock" json:"stock" validate:"required,numeric,gte=0"`
 	ImageUrl      string    `db:"image_url" json:"imageUrl" validate:"required,url"`
 	Condition     string    `db:"condition" json:"condition" validate:"required,validCondition"`
-	IsPurchasable bool      `db:"is_purchasable" json:"isPurchasable"`
-	Tags          []string  `db:"tags" json:"tags" validate:"required"`
-	CreatedAt     time.Time `db:"created_at"`
-	UpdatedAt     time.Time `db:"updated_at"`
+	IsPurchasable bool      `db:"is_purchasable" json:"isPurchasable" validate:"required"`
+	Tags          []string  `db:"tags" json:"tags" validate:"required,min=0"`
+	PurchaseCount int       `json:"purchaseCount"`
 }
 
 type Key struct {

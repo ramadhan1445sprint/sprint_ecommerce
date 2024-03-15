@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -17,9 +18,7 @@ type RepoInterface interface {
 	UpdateProduct(product entity.Product) error
 	DeleteProduct(id uuid.UUID) error
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
-	GetPurchaseCount(id uuid.UUID) (int, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
-	GetCountProduct() (int, error)
 	GetBankAccount(userId string) ([]entity.BankAccount, error)
 }
 
@@ -80,14 +79,21 @@ func (r *repo) GetDetailProduct(id uuid.UUID) (entity.Product, error) {
 		return product, err
 	}
 
+	total, err := GetPurchaseCount(product.ID, r)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return product, err
+	}
+
 	product.Tags = tagsSlice
+	product.PurchaseCount = total
 
 	return product, nil
 }
 
-func (r *repo) GetPurchaseCount(id uuid.UUID) (int, error) {
+func GetPurchaseCount(id uuid.UUID, r *repo) (int, error) {
 	var total int
-	query := fmt.Sprintf(`SELECT SUM(quantity) FROM payments WHERE product_id = '%s'`, id)
+	query := fmt.Sprintf(`SELECT COALESCE(SUM(quantity), 0) FROM payments WHERE product_id = '%s'`, id)
 
 	// Query sum quantity
 	err := r.db.QueryRow(query).Scan(&total)
@@ -102,7 +108,7 @@ func (r *repo) GetPurchaseCount(id uuid.UUID) (int, error) {
 func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error) {
 	var productPayment entity.ProductPayment
 
-	query := fmt.Sprintf(`select u."name", sum(p2.quantity) as totalSold from products p
+	query := fmt.Sprintf(`select u."name", COALESCE(SUM(quantity), 0) as totalSold from products p
 											inner join users u on p.user_id = u.id
 											inner join payments p2 ON p.id = p2.product_id
 											where u.id = '%s'
@@ -118,29 +124,22 @@ func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, err
 	return productPayment, err
 }
 
-func (r *repo) GetCountProduct() (int, error) {
-	var count int
-	query := "SELECT COUNT(*) FROM products"
-
-	// Query sum quantity
-	err := r.db.QueryRow(query).Scan(&count)
-	if err != nil {
-		log.Println("Error executing query:", err)
-		return 0, err
-	}
-
-	return count, err
-}
-
 func (r *repo) UpdateProduct(product entity.Product) error {
 	query := `UPDATE products set name = :name, price = :price, stock = :stock, image_url = :image_url,
-							condition = :condition, is_purchasable = :is_purchasable, tags = :tags, updated_at = :updated_at
+							condition = :condition, is_purchasable = :is_purchasable, tags = :tags
 							WHERE id = :id`
 
-	_, err := r.db.NamedExec(query, &product)
+	res, err := r.db.NamedExec(query, &product)
+
 	if err != nil {
 		log.Println("Error executing query:", err)
 		return err
+	}
+
+	rowsEffected, _ := res.RowsAffected()
+
+	if rowsEffected == 0 {
+		return errors.New("product not found")
 	}
 
 	return nil
@@ -149,10 +148,16 @@ func (r *repo) UpdateProduct(product entity.Product) error {
 func (r *repo) DeleteProduct(id uuid.UUID) error {
 	query := `DELETE FROM products WHERE id = $1`
 
-	_, err := r.db.Exec(query, id)
+	res, err := r.db.Exec(query, id)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		return err
+	}
+
+	rowsEffected, _ := res.RowsAffected()
+
+	if rowsEffected == 0 {
+		return errors.New("product not found")
 	}
 
 	return nil
@@ -241,23 +246,25 @@ func (r *repo) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produ
 	}
 	inClause := strings.Join(productIDs, ", ")
 
-	var tags []pgtype.VarcharArray
-	query1 := fmt.Sprintf(`SELECT tags FROM products WHERE id in (%s)`, inClause)
+	if len(products) > 0 {
+		var tags []pgtype.VarcharArray
+		query1 := fmt.Sprintf(`SELECT tags FROM products WHERE id in (%s)`, inClause)
 
-	// Query for a single row
-	err = r.db.Select(&tags, query1)
-	if err != nil {
-		log.Println("Error executing query:", err)
-		return products, err
-	}
+		// Query for a single row
+		err = r.db.Select(&tags, query1)
+		if err != nil {
+			log.Println("Error executing query:", err)
+			return products, err
+		}
 
-	// Extract tags from VarcharArray
-	for i, tagArray := range tags {
-		var tagsSlice []string
-		for _, tag := range tagArray.Elements {
-			if tag.Status != pgtype.Null {
-				tagsSlice = append(tagsSlice, string(tag.String))
-				products[i].Tags = tagsSlice
+		// Extract tags from VarcharArray
+		for i, tagArray := range tags {
+			var tagsSlice []string
+			for _, tag := range tagArray.Elements {
+				if tag.Status != pgtype.Null {
+					tagsSlice = append(tagsSlice, string(tag.String))
+					products[i].Tags = tagsSlice
+				}
 			}
 		}
 	}

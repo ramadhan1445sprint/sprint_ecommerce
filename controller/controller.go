@@ -7,7 +7,6 @@ import (
 	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
-	"github.com/ramadhan1445sprint/sprint_ecommerce/utils"
 )
 
 type Controller struct {
@@ -28,24 +27,15 @@ func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
 
 	// Check, if received JSON data is valid.
 	if err := ctx.BodyParser(product); err != nil {
-		return err
+		return ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
 	}
 
 	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
 	product.UserID = userId
 
-	validate := validator.New()
-	validate.RegisterValidation("validCondition", ValidateCondition)
-
-	if err := validate.Struct(product); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": utils.ValidatorErrors(err),
-		})
-	}
-
 	err := c.svc.CreateProduct(*product)
 	if err != nil {
-		return customErr.NewInternalServerError(err.Error())
+		return err
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -61,33 +51,16 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	// check productId is found or not
-	*product, err = c.svc.GetDetailProduct(id)
-	if err != nil || product.ID == uuid.Nil {
-		return customErr.NewBadRequestError("product not found")
-	}
-
 	// Check, if received JSON data is valid.
 	if err := ctx.BodyParser(product); err != nil {
-		return err
+		return ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
 	}
 
-	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
-	product.UserID = userId
 	product.ID = id
-
-	validate := validator.New()
-	validate.RegisterValidation("validCondition", ValidateCondition)
-
-	if err := validate.Struct(product); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": utils.ValidatorErrors(err),
-		})
-	}
 
 	err = c.svc.UpdateProduct(*product)
 	if err != nil {
-		return customErr.NewInternalServerError(err.Error())
+		return err
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -106,11 +79,6 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 		return customErr.NewBadRequestError("product not found")
 	}
 
-	total, err := c.svc.GetPurchaseCount(id)
-	if err != nil {
-		return customErr.NewInternalServerError("error query purchase count")
-	}
-
 	productPayment, err := c.svc.GetProductSoldTotal(product.UserID)
 	if err != nil {
 		return customErr.NewInternalServerError("error query sold count")
@@ -125,17 +93,7 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"message": "ok",
 		"data": fiber.Map{
-			"product": fiber.Map{
-				"productId":      product.ID,
-				"name":           product.Name,
-				"price":          product.Price,
-				"imageUrl":       product.ImageUrl,
-				"stock":          product.Stock,
-				"condition":      product.Condition,
-				"tags":           product.Tags,
-				"isPurchaseable": product.IsPurchasable,
-				"purchaseCount":  total,
-			},
+			"product": product,
 			"seller": fiber.Map{
 				"name":             productPayment.Name,
 				"productSoldTotal": productPayment.TotalSold,
@@ -146,22 +104,14 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
-	product := &entity.Product{}
-
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
 		return err
 	}
 
-	// check productId is found or not
-	*product, err = c.svc.GetDetailProduct(id)
-	if err != nil || product.ID == uuid.Nil {
-		return customErr.NewBadRequestError("product not found")
-	}
-
 	err = c.svc.DeleteProduct(id)
 	if err != nil {
-		return customErr.NewInternalServerError(err.Error())
+		return err
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -179,18 +129,11 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
 
 	// Check, if received JSON data is valid.
-	if err := ctx.QueryParser(keys); err != nil {
-		return err
-	}
+	ctx.QueryParser(keys)
 
 	products, err := c.svc.GetListProduct(*keys, userId)
 	if err != nil {
 		return customErr.NewInternalServerError(err.Error())
-	}
-
-	count, err := c.svc.GetCountProduct()
-	if err != nil {
-		return customErr.NewBadRequestError("error query count product")
 	}
 
 	if keys.Limit != nil && keys.Offset != nil {
@@ -205,7 +148,7 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 		"meta": fiber.Map{
 			"limit":  limit,
 			"offset": offset,
-			"total":  count,
+			"total":  len(products),
 		},
 	})
 }
