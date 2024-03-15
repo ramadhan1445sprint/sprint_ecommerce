@@ -116,6 +116,11 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 		return customErr.NewInternalServerError("error query sold count")
 	}
 
+	bankAccount, _, err := c.svc.GetBankAccount(product.UserID.String())
+	if err != nil {
+		return customErr.NewInternalServerError(err.Error())
+	}
+
 	// Return status 200 OK.
 	return ctx.JSON(fiber.Map{
 		"message": "ok",
@@ -134,7 +139,7 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 			"seller": fiber.Map{
 				"name":             productPayment.Name,
 				"productSoldTotal": productPayment.TotalSold,
-				"bankAccounts":     "",
+				"bankAccounts":     bankAccount,
 			},
 		},
 	})

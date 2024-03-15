@@ -38,14 +38,19 @@ func (s *Server) Run() {
 func (s *Server) RegisterRoute() {
 	mainRoute := s.app.Group("/v1")
 	registerUserRouter(mainRoute, s.db)
+	registerHealthCheckRoute(mainRoute, s.db)
 	mainRoute.Use(middleware.Authorization)
 	// put another route below
 	registerImageRouter(mainRoute)
-	registerProducRouter(mainRoute, s.db)
+	registerProductRouter(mainRoute, s.db)
+	registerBankAccountRoute(mainRoute, s.db)
 }
 
-func registerProducRouter(r fiber.Router, db *sqlx.DB) {
+func registerProductRouter(r fiber.Router, db *sqlx.DB) {
 	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
+	payment := controller.NewPaymentController(svc.NewPaymentSvc(repo.NewPaymentRepo(db)))
+	stock := controller.NewStockController(svc.NewStockSvc(repo.NewStockRepo(db)))
+	
 	prodRouter := r.Group("/product")
 
 	prodRouter.Get("/", c.GetListProduct)
@@ -53,6 +58,8 @@ func registerProducRouter(r fiber.Router, db *sqlx.DB) {
 	prodRouter.Post("/", c.CreateProduct)
 	prodRouter.Patch("/:productId", c.UpdateProduct)
 	prodRouter.Delete("/:productId", c.DeleteProduct)
+	prodRouter.Post("/:productId/buy", payment.CreatePayment)
+	prodRouter.Post("/:productId/stock", stock.UpdateStock)
 }
 func registerUserRouter(r fiber.Router, db *sqlx.DB) {
 	ctr := controller.NewUserController(svc.NewUserSvc(repo.NewUserRepo(db)))
@@ -83,3 +90,19 @@ func registerImageRouter(r fiber.Router) {
 
 	r.Post("/image", ctr.UploadImage)
 }
+
+func registerHealthCheckRoute(r fiber.Router, db *sqlx.DB) {
+	c := controller.NewHealthController(svc.NewHealthSvc(repo.NewHealthRepo(db)))
+	healthRouter := r.Group("/health")
+	healthRouter.Get("/", c.Get)
+}
+
+func registerBankAccountRoute(r fiber.Router, db *sqlx.DB) {
+	bankAccount := controller.NewBankAccountController(svc.NewBankAccounthSvc(repo.NewBankAccountRepo(db)))
+	productRouter := r.Group("/bank")
+	productRouter.Post("/account", bankAccount.CreateBankAccount)
+	productRouter.Get("/account", bankAccount.GetBankAccount)
+	productRouter.Patch("/account/:bankAccountId", bankAccount.UpdateBankAccount)
+	productRouter.Delete("/account/:bankAccountId", bankAccount.DeleteBankAccount)
+}
+

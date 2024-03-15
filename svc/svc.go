@@ -15,6 +15,7 @@ type SvcInterface interface {
 	GetPurchaseCount(id uuid.UUID) (int, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 	GetCountProduct() (int, error)
+	GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error)
 }
 
 func NewSvc(repo repo.RepoInterface) SvcInterface {
@@ -95,4 +96,31 @@ func (s *svc) GetCountProduct() (int, error) {
 	}
 
 	return count, nil
+}
+
+func (s *svc) GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error) {
+	res, err := s.repo.GetBankAccount(userId)
+
+	if err != nil {
+		if err.Error() == "bank account not found" {
+			return nil, 404, err
+		}else {
+			return nil, 500, err		
+		}
+	}
+
+	resp := []entity.BankAccountGetResponse{}
+
+	for _, account := range res {
+		tempAcc := entity.BankAccountGetResponse{
+			ID: account.ID,
+			Name: account.Name,
+			AccountName: account.AccountName,
+			AccountNumber: account.AccountNumber,
+		}
+
+		resp = append(resp, tempAcc)
+	} 
+
+	return resp, 200, nil
 }
