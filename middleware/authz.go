@@ -19,7 +19,7 @@ func Authorization(ctx *fiber.Ctx) error {
 	splitted := strings.Split(auth, " ")
 
 	if splitted[0] != "Bearer" {
-		return customErr.NewForbiddenError("invalid token")
+		return customErr.NewUnauthorizedError("invalid token")
 	}
 
 	payload, err := crypto.VerifyToken(splitted[1])
@@ -27,7 +27,7 @@ func Authorization(ctx *fiber.Ctx) error {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return customErr.NewUnauthorizedError("token expired")
 		}
-		return customErr.NewForbiddenError(err.Error())
+		return customErr.NewUnauthorizedError(err.Error())
 	}
 
 	ctx.Locals("user_id", payload.Id)
