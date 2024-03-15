@@ -204,11 +204,11 @@ func TestUpdateStock(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		input       entity.Product
+		input       entity.Stock
 		errExpected bool
 	}{
-		{"Test create payment success", entity.Product{ID: "43826207-2a72-40c5-a696-35cc66c32e2e", Stock: 999}, false},
-		{"Test create payment failed", entity.Product{ID: "dwad", Stock: 2}, true},
+		{"Test create payment success", entity.Stock{ID: "43826207-2a72-40c5-a696-35cc66c32e2e", Stock: 999}, false},
+		{"Test create payment failed", entity.Stock{ID: "dwad", Stock: 2}, true},
 	}
 
 	for _, tc := range testCases {
