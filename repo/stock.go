@@ -8,7 +8,7 @@ import (
 )
 
 type StockRepoInterface interface {
-	UpdateStock(product *entity.Product) error
+	UpdateStock(product *entity.Stock) error
 	CheckProductByUserId(userId string, productId string) error
 	GetProductById(productId string) error
 }
@@ -21,7 +21,7 @@ type stockRepo struct {
 	db *sqlx.DB
 }
 
-func (r *stockRepo) UpdateStock(product *entity.Product) error {
+func (r *stockRepo) UpdateStock(product *entity.Stock) error {
 	res, err := r.db.Exec("UPDATE products SET stock = $1 where id = $2", product.Stock, product.ID)
 
 	if err != nil {
