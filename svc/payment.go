@@ -2,6 +2,7 @@ package svc
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
@@ -9,7 +10,7 @@ import (
 )
 
 type PaymentSvcInterface interface {
-	CreatePayment(paymentReq *entity.PaymentCreateRequest) (int, error)
+	CreatePayment(paymentReq *entity.PaymentCreateRequest, productId string) (int, error)
 }
 
 func NewPaymentSvc(repo repo.PaymentRepoInterface) PaymentSvcInterface {
@@ -18,16 +19,25 @@ func NewPaymentSvc(repo repo.PaymentRepoInterface) PaymentSvcInterface {
 
 type paymentSvc struct {
 	repo repo.PaymentRepoInterface
+	mutex sync.Mutex
 }
 
-func (s *paymentSvc) CreatePayment(paymentReq *entity.PaymentCreateRequest) (int, error) {
+func (s *paymentSvc) CreatePayment(paymentReq *entity.PaymentCreateRequest, productId string) (int, error) {
+	paymentReq.ProductID = &productId
 	status, err := utils.ValidatePaymentRequest(paymentReq)
 
 	if err != nil {
 		return status, err
 	}
 
-	productQty := 20
+	s.mutex.Lock()
+    defer s.mutex.Unlock()
+
+	productQty, err := s.repo.GetProductQty(productId)
+
+	if err != nil {
+		return 500, err
+	}
 
 	if productQty < *paymentReq.Quantity {
 		return 400, errors.New("insufficient quantity")
@@ -40,9 +50,14 @@ func (s *paymentSvc) CreatePayment(paymentReq *entity.PaymentCreateRequest) (int
 		Quantity: *paymentReq.Quantity,
 	}
 
-	err = s.repo.CreatePayment(&payment)
-	if err != nil {
+	if err = s.repo.CreatePayment(&payment); err != nil {
 		return 500, err
+	}
+
+	stock := productQty - payment.Quantity
+
+	if err = s.repo.UpdateStock(productId, stock); err != nil {
+		return 500 , err
 	}
 
 	return  200, nil

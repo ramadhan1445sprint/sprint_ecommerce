@@ -1,13 +1,14 @@
 package repo
 
 import (
-
 	"github.com/jmoiron/sqlx"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 )
 
 type PaymentRepoInterface interface {
 	CreatePayment(payment *entity.Payment) error
+	GetProductQty(productId string) (int, error)
+	UpdateStock(productId string, stock int) error
 }
 
 func NewPaymentRepo(db *sqlx.DB) PaymentRepoInterface {
@@ -27,3 +28,28 @@ func (r *paymentRepo) CreatePayment(payment *entity.Payment) error {
 
 	return nil
 }
+
+func (r *paymentRepo) GetProductQty(productId string) (int, error) {
+
+	var res *int
+
+	err := r.db.Get(&res, "select stock from products where id = $1", productId)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return *res, nil
+}
+
+func (r *paymentRepo) UpdateStock(productId string, stock int) error {
+	_, err := r.db.Exec("update products set stock = $1 where id = $2",stock, productId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
