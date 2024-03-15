@@ -23,7 +23,7 @@ func (c *paymentController) CreatePayment(ctx *fiber.Ctx) error {
 	req := new(entity.PaymentCreateRequest)
 
 	if err := ctx.BodyParser(req); err != nil {
-		ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
+		return ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
 	}
 
 	status, err := c.svc.CreatePayment(req, productId)
