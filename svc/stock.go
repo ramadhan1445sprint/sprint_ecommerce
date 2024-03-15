@@ -8,7 +8,7 @@ import (
 )
 
 type StockSvcInterface interface {
-	UpdateStock(productReq *entity.StockUpdateRequest, productId string) (int, error)
+	UpdateStock(productReq *entity.StockUpdateRequest, productId string, userId string) (int, error)
 }
 
 func NewStockSvc(repo repo.StockRepoInterface) StockSvcInterface {
@@ -19,12 +19,28 @@ type stockSvc struct {
 	repo repo.StockRepoInterface
 }
 
-func (s *stockSvc) UpdateStock(productReq *entity.StockUpdateRequest, productId string) (int, error) {
+func (s *stockSvc) UpdateStock(productReq *entity.StockUpdateRequest, productId string, userId string) (int, error) {
 	productReq.ProductID = &productId
 	status, err := utils.ValidateStockUpdateRequest(productReq)
 
 	if err != nil {
 		return status, err
+	}
+	
+	if err := s.repo.GetProductById(productId); err != nil {
+		if err.Error() == "product not found" {
+			return 404, err
+		}else {
+			return 500, err
+		}
+	}
+
+	if err := s.repo.CheckProductByUserId(userId, productId); err != nil {
+		if err.Error() == "" {
+			return 403, err
+		}else {
+			return 500, err
+		}
 	}
 
 	product := entity.Product{

@@ -25,7 +25,11 @@ func (s *bankAccountSvc) GetBankAccount(userId string) ([]entity.BankAccountGetR
 	res, err := s.repo.GetBankAccount(userId)
 
 	if err != nil {
-		return nil, 500, err
+		if err.Error() == "bank account not found" {
+			return nil, 404, err
+		}else {
+			return nil, 500, err		
+		}
 	}
 
 	resp := []entity.BankAccountGetResponse{}

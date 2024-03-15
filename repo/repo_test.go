@@ -227,3 +227,40 @@ func TestUpdateStock(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckProductByUserId(t *testing.T) {
+	config.LoadConfig("../.env")
+
+	db, err := database.NewDatabase()
+	if err != nil {
+		t.Fatalf("failed to create a database connection: %v", err)
+	}
+
+	stockRepo := NewStockRepo(db)
+
+	testCases := []struct {
+		name        string
+		userId      string
+		productId 	string
+		errExpected bool
+	}{
+		{"Test create payment success", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49", "97ed68e2-221e-4e0f-885f-d37ef90919c2", false},
+		{"Test create payment failed", "dwa", "97ed68e2-221e-4e0f-885f-d37ef90919c2", true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := stockRepo.CheckProductByUserId(tc.userId, tc.productId)
+
+			if tc.errExpected {
+				if err == nil {
+					t.Errorf("Expected error but no error")
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error, but got: %v", err)
+				}
+			}
+		})
+	}
+}

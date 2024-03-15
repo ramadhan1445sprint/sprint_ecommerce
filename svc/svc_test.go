@@ -219,21 +219,22 @@ func TestCreatePayment(t *testing.T) {
 	testCases := []struct {
 		name        string
 		input       entity.PaymentCreateRequest
+		productId   string
 		errExpected bool
 	}{
-		{"Test create payment success", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, false},
-		{"Test create payment failed 1", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: nil, PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, true},
-		{"Test create payment failed 2", entity.PaymentCreateRequest{ProductID: nil, BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, true},
-		{"Test create payment failed 3", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: nil, Quantity: intPtr(10)}, true},
-		{"Test create payment failed 4", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: nil}, true},
-		{"Test create payment failed 5", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(0)}, true},
-		{"Test create payment failed 6", entity.PaymentCreateRequest{ProductID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("owkeokweo"), Quantity: intPtr(0)}, true},
-		{"Test create payment failed 7", entity.PaymentCreateRequest{ProductID: strPtr("dwad"), BankAccountID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, true},
+		{"Test create payment success", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, "43826207-2a72-40c5-a696-35cc66c32e2e", false},
+		{"Test create payment failed 1", entity.PaymentCreateRequest{BankAccountID: nil, PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 2", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 3", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: nil, Quantity: intPtr(10)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 4", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: nil}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 5", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(0)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 6", entity.PaymentCreateRequest{BankAccountID: strPtr("02086ff6-7df3-44a8-aebb-4906f0360c39"), PaymentProofImgUrl: strPtr("owkeokweo"), Quantity: intPtr(0)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test create payment failed 7", entity.PaymentCreateRequest{BankAccountID: strPtr("43826207-2a72-40c5-a696-35cc66c32e2e"), PaymentProofImgUrl: strPtr("https://example.com/image.jpg"), Quantity: intPtr(10)}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, err := paymentSvc.CreatePayment(&tc.input)
+			status, err := paymentSvc.CreatePayment(&tc.input, tc.productId)
 
 			if tc.errExpected {
 				if err == nil {
@@ -267,19 +268,20 @@ func TestUpdateStock(t *testing.T) {
 		name        string
 		input       entity.StockUpdateRequest
 		productId   string
+		userId 		string
 		errExpected bool
 	}{
-		{"Test update stock success", entity.StockUpdateRequest{Stock: intPtr(111)}, "43826207-2a72-40c5-a696-35cc66c32e2e", false},
-		{"Test update stock failed", entity.StockUpdateRequest{Stock: intPtr(111)}, "", true},
-		{"Test update stock failed 1", entity.StockUpdateRequest{Stock: intPtr(111)}, "", true},
-		{"Test update stock failed 2", entity.StockUpdateRequest{Stock: nil}, "43826207-2a72-40c5-a696-35cc66c32e2e", true},
-		{"Test update stock failed 3", entity.StockUpdateRequest{Stock: intPtr(-1)},"43826207-2a72-40c5-a696-35cc66c32e2e", true},
+		{"Test update stock success", entity.StockUpdateRequest{Stock: intPtr(111)}, "43826207-2a72-40c5-a696-35cc66c32e2e", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49",false},
+		{"Test update stock failed", entity.StockUpdateRequest{Stock: intPtr(111)}, "", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49",true},
+		{"Test update stock failed 1", entity.StockUpdateRequest{Stock: intPtr(111)}, "", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49",true},
+		{"Test update stock failed 2", entity.StockUpdateRequest{Stock: nil}, "43826207-2a72-40c5-a696-35cc66c32e2e", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49",true},
+		{"Test update stock failed 3", entity.StockUpdateRequest{Stock: intPtr(-1)},"43826207-2a72-40c5-a696-35cc66c32e2e", "6ca7abef-4f8a-4613-9a3f-77e9b34c8c49",true},
 		
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, err := stockSvc.UpdateStock(&tc.input, tc.productId)
+			status, err := stockSvc.UpdateStock(&tc.input, tc.productId, tc.userId)
 
 			if tc.errExpected {
 				if err == nil {

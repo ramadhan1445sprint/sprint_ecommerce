@@ -27,9 +27,6 @@ func (r *bankAccountRepo) GetBankAccount(userId string) ([]entity.BankAccount, e
 
 	r.db.Select(&res, "SELECT id, bank_name, account_name, account_number from bank_accounts where user_id = $1", userId)
 
-	if len(res) == 0 {
-		return nil, errors.New("bank account not found")
-	}
 	return res, nil
 }
 

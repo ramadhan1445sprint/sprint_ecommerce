@@ -18,6 +18,7 @@ func (c *stockController) UpdateStock(ctx *fiber.Ctx) error {
 	var message string
 	
 	productId := ctx.Params("productId")
+	userId := ctx.Locals("user_id").(string)
 
 	req := new(entity.StockUpdateRequest)
 
@@ -27,7 +28,7 @@ func (c *stockController) UpdateStock(ctx *fiber.Ctx) error {
 
 	req.ProductID = &productId
 
-	status, err := c.svc.UpdateStock(req, productId)
+	status, err := c.svc.UpdateStock(req, productId, userId)
 
 	if err != nil {
 		message = err.Error()

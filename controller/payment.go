@@ -1,6 +1,7 @@
 package controller
 
 import (
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
@@ -25,9 +26,7 @@ func (c *paymentController) CreatePayment(ctx *fiber.Ctx) error {
 		ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
 	}
 
-	req.ProductID = &productId
-
-	status, err := c.svc.CreatePayment(req)
+	status, err := c.svc.CreatePayment(req, productId)
 
 	if err != nil {
 		message = err.Error()
