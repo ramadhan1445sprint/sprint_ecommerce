@@ -96,3 +96,4 @@ func (s *svc) GetCountProduct() (int, error) {
 
 	return count, nil
 }
+
