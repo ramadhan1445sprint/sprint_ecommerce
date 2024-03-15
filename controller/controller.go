@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
@@ -15,11 +14,6 @@ type Controller struct {
 
 func NewController(svc svc.SvcInterface) *Controller {
 	return &Controller{svc: svc}
-}
-
-func ValidateCondition(fl validator.FieldLevel) bool {
-	condition := fl.Field().String()
-	return condition == "new" || condition == "second"
 }
 
 func (c *Controller) CreateProduct(ctx *fiber.Ctx) error {
