@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/ramadhan1445sprint/sprint_ecommerce/customErr"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/svc"
 )
 
@@ -17,10 +16,9 @@ func NewHealthController(svc svc.HealthSvcInterface) *healthController {
 func (c *healthController) Get(ctx *fiber.Ctx) error {
 	status, err := c.svc.GetStatus()
 	if err != nil {
-		return customErr.NewInternalServerError(err.Error())
+		return err
 	}
 
-	// Return status 200 OK.
 	return ctx.JSON(fiber.Map{
 		"message": "success",
 		"status":  status,
