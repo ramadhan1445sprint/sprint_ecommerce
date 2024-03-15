@@ -53,12 +53,14 @@ func NewServer(db *sqlx.DB) *Server {
 
 	app.Use(func(ctx *fiber.Ctx) error {
 		start := time.Now()
-		method := ctx.Method()
-		path := ctx.Path()
+		fmt.Println("context path", ctx.Path())
 
 		err := ctx.Next()
 
+		method := ctx.Method()
+		path := ctx.Route().Path
 		statusCode := strconv.Itoa(ctx.Response().StatusCode())
+		fmt.Println("Default Status Code", ctx.Response().StatusCode())
 
 		if err != nil {
 			if customError, ok := err.(customErr.CustomError); ok {
