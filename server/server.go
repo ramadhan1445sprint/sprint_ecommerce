@@ -41,8 +41,19 @@ func (s *Server) RegisterRoute() {
 	mainRoute.Use(middleware.Authorization)
 	// put another route below
 	registerImageRouter(mainRoute)
+	registerProducRouter(mainRoute, s.db)
 }
 
+func registerProducRouter(r fiber.Router, db *sqlx.DB) {
+	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
+	prodRouter := r.Group("/product")
+
+	prodRouter.Get("/", c.GetListProduct)
+	prodRouter.Get("/:productId", c.GetDetailProduct)
+	prodRouter.Post("/", c.CreateProduct)
+	prodRouter.Patch("/:productId", c.UpdateProduct)
+	prodRouter.Delete("/:productId", c.DeleteProduct)
+}
 func registerUserRouter(r fiber.Router, db *sqlx.DB) {
 	ctr := controller.NewUserController(svc.NewUserSvc(repo.NewUserRepo(db)))
 	userGroup := r.Group("/user")
