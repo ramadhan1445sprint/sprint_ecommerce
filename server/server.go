@@ -93,10 +93,10 @@ func (s *Server) RegisterRoute() {
 	mainRoute := s.app.Group("/v1")
 	registerUserRouter(mainRoute, s.db)
 	registerHealthCheckRoute(mainRoute, s.db)
+	registerProductRouter(mainRoute, s.db)
 	mainRoute.Use(middleware.Authorization)
 	// put another route below
 	registerImageRouter(mainRoute)
-	registerProductRouter(mainRoute, s.db)
 	registerBankAccountRoute(mainRoute, s.db)
 }
 
@@ -104,11 +104,12 @@ func registerProductRouter(r fiber.Router, db *sqlx.DB) {
 	c := controller.NewController(svc.NewSvc(repo.NewRepo(db)))
 	payment := controller.NewPaymentController(svc.NewPaymentSvc(repo.NewPaymentRepo(db)))
 	stock := controller.NewStockController(svc.NewStockSvc(repo.NewStockRepo(db)))
-	
-	prodRouter := r.Group("/product")
 
-	prodRouter.Get("/", c.GetListProduct)
+	prodRouter := r.Group("/product")
+	prodRouter.Get("/", middleware.ProductPageAuth, c.GetListProduct)
 	prodRouter.Get("/:productId", c.GetDetailProduct)
+
+	prodRouter.Use(middleware.Authorization)
 	prodRouter.Post("/", c.CreateProduct)
 	prodRouter.Patch("/:productId", c.UpdateProduct)
 	prodRouter.Delete("/:productId", c.DeleteProduct)
@@ -159,4 +160,3 @@ func registerBankAccountRoute(r fiber.Router, db *sqlx.DB) {
 	productRouter.Patch("/account/:bankAccountId", bankAccount.UpdateBankAccount)
 	productRouter.Delete("/account/:bankAccountId", bankAccount.DeleteBankAccount)
 }
-

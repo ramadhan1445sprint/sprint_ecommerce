@@ -44,13 +44,13 @@ func ProductPageAuth(ctx *fiber.Ctx) error {
 		if auth == "" {
 			return customErr.NewUnauthorizedError("token not found")
 		}
-	
+
 		splitted := strings.Split(auth, " ")
-	
+
 		if splitted[0] != "Bearer" {
 			return customErr.NewUnauthorizedError("invalid token")
 		}
-	
+
 		payload, err := crypto.VerifyToken(splitted[1])
 		if err != nil {
 			if errors.Is(err, jwt.ErrTokenExpired) {
@@ -58,7 +58,7 @@ func ProductPageAuth(ctx *fiber.Ctx) error {
 			}
 			return customErr.NewUnauthorizedError(err.Error())
 		}
-	
+
 		ctx.Locals("user_id", payload.Id)
 	}
 
