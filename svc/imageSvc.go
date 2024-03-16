@@ -31,7 +31,7 @@ func NewImageSvc(cfg aws.Config) ImageSvc {
 }
 
 func (i *imageSvc) UploadImage(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
-	bucketName := config.GetString("S3_BASE_URL")
+	bucketName := config.GetString("S3_BUCKET_NAME")
 	uuid := uuid.NewString()
 	splitted := strings.Split(fileHeader.Filename, ".")
 	ext := splitted[len(splitted)-1]

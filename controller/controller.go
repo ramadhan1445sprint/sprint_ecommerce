@@ -129,7 +129,7 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 	ctx.QueryParser(keys)
 
 	// check if userOnly == true
-	if keys.UserOnly != nil {
+	if keys.UserOnly != nil && *keys.UserOnly {
 		userId, _ = uuid.Parse(ctx.Locals("user_id").(string))
 	}
 
