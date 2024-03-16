@@ -53,7 +53,6 @@ func NewServer(db *sqlx.DB) *Server {
 
 	app.Use(func(ctx *fiber.Ctx) error {
 		start := time.Now()
-		fmt.Println("context path", ctx.Path())
 
 		err := ctx.Next()
 
