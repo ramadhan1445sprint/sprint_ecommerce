@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"regexp"
-	
+
 	"github.com/go-playground/validator/v10"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 )
@@ -26,7 +26,7 @@ func ValidatePaymentRequest(paymentReq *entity.PaymentCreateRequest) (int, error
 	if paymentReq.BankAccountID == nil {
 		return 400, errors.New("bank account cant be null")
 	}
-	
+
 	if paymentReq.PaymentProofImgUrl == nil {
 		return 400, errors.New("payment proof image url cant be null")
 	}
@@ -43,13 +43,17 @@ func ValidatePaymentRequest(paymentReq *entity.PaymentCreateRequest) (int, error
 		return 400, errors.New("minimum quantity is 1")
 	}
 
+	if *paymentReq.BankAccountID == "" {
+		return 400, errors.New("bank account cant be empty")
+	}
+
 	if reflect.TypeOf(*paymentReq.Quantity).Kind() != reflect.Int {
 		return 400, errors.New("invalid quantity")
 	}
 
-	pattern := `^(http(s?):)//(?:\w+\.)+\w+(?:\:\d{1,5})?(?:/[^/]+)*\.(?:jpg|jpeg|png|gif)$`
+	pattern := `^https://[^/]+\.s3\.[^/]+\.amazonaws\.com/.+\.(?:jpg|jpeg)$`
 
-    regex := regexp.MustCompile(pattern)
+	regex := regexp.MustCompile(pattern)
 
 	if !regex.MatchString(*paymentReq.PaymentProofImgUrl) {
 		return 400, errors.New("invalid image url")
@@ -134,7 +138,7 @@ func ValidateStockUpdateRequest(req *entity.StockUpdateRequest) (int, error) {
 	if req.ProductID == nil {
 		return 400, errors.New("product id cant be null")
 	}
-	
+
 	if *req.ProductID == "" {
 		return 400, errors.New("product id cant be empty")
 	}

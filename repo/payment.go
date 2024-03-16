@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 )
@@ -20,6 +22,7 @@ type paymentRepo struct {
 }
 
 func (r *paymentRepo) CreatePayment(payment *entity.Payment) error {
+	fmt.Printf("%#v", payment)
 	_, err := r.db.Exec("INSERT INTO payments (product_id, bank_account_id, quantity, payment_proof_image_url) values ($1, $2, $3, $4)", payment.ProductID, payment.BankAccountID, payment.Quantity, payment.PaymentProofImgUrl)
 
 	if err != nil {
@@ -43,7 +46,7 @@ func (r *paymentRepo) GetProductQty(productId string) (int, error) {
 }
 
 func (r *paymentRepo) UpdateStock(productId string, stock int) error {
-	_, err := r.db.Exec("update products set stock = $1 where id = $2",stock, productId)
+	_, err := r.db.Exec("update products set stock = $1 where id = $2", stock, productId)
 
 	if err != nil {
 		return err
@@ -51,5 +54,3 @@ func (r *paymentRepo) UpdateStock(productId string, stock int) error {
 
 	return nil
 }
-
-

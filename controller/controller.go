@@ -73,7 +73,7 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 
 	product, err := c.svc.GetDetailProduct(id)
 	if err != nil {
-		return customErr.NewBadRequestError("product not found")
+		return customErr.NewNotFoundError("product not found")
 	}
 
 	productPayment, err := c.svc.GetProductSoldTotal(product.UserID)

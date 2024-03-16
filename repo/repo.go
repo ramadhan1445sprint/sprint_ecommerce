@@ -110,7 +110,7 @@ func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, err
 
 	query := fmt.Sprintf(`select u."name", COALESCE(SUM(quantity), 0) as totalSold from products p
 											inner join users u on p.user_id = u.id
-											inner join payments p2 ON p.id = p2.product_id
+											left join payments p2 ON p.id = p2.product_id
 											where u.id = '%s'
 											group by u.id`, userId)
 
