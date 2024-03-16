@@ -12,7 +12,7 @@ type SvcInterface interface {
 	CreateProduct(product entity.Product) error
 	GetDetailProduct(id uuid.UUID) (entity.Product, error)
 	UpdateProduct(product entity.Product) error
-	DeleteProduct(id uuid.UUID) error
+	DeleteProduct(id uuid.UUID, userId uuid.UUID) error
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 	GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error)
@@ -66,7 +66,9 @@ func (s *svc) UpdateProduct(product entity.Product) error {
 
 	if err := s.repo.UpdateProduct(product); err != nil {
 		if err.Error() == "product not found" {
-			err = customErr.NewBadRequestError("product not found")
+			err = customErr.NewNotFoundError(err.Error())
+		} else if err.Error() == "product is not owned by this user" {
+			err = customErr.NewForbiddenError(err.Error())
 		} else {
 			err = customErr.NewInternalServerError(err.Error())
 		}
@@ -76,10 +78,12 @@ func (s *svc) UpdateProduct(product entity.Product) error {
 	return nil
 }
 
-func (s *svc) DeleteProduct(id uuid.UUID) error {
-	if err := s.repo.DeleteProduct(id); err != nil {
+func (s *svc) DeleteProduct(id uuid.UUID, userId uuid.UUID) error {
+	if err := s.repo.DeleteProduct(id, userId); err != nil {
 		if err.Error() == "product not found" {
-			err = customErr.NewBadRequestError("product not found")
+			err = customErr.NewNotFoundError(err.Error())
+		} else if err.Error() == "product is not owned by this user" {
+			err = customErr.NewForbiddenError(err.Error())
 		} else {
 			err = customErr.NewInternalServerError(err.Error())
 		}
