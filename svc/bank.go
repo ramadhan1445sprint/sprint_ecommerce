@@ -1,8 +1,6 @@
 package svc
 
 import (
-	"fmt"
-
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/utils"
