@@ -16,7 +16,7 @@ type RepoInterface interface {
 	CreateProduct(product entity.Product) error
 	GetDetailProduct(id uuid.UUID) (entity.Product, error)
 	UpdateProduct(product entity.Product) error
-	DeleteProduct(id uuid.UUID) error
+	DeleteProduct(id uuid.UUID, userId uuid.UUID) error
 	GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Product, error)
 	GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, error)
 	GetBankAccount(userId string) ([]entity.BankAccount, error)
@@ -124,7 +124,25 @@ func (r *repo) GetProductSoldTotal(userId uuid.UUID) (entity.ProductPayment, err
 	return productPayment, err
 }
 
+func GetProductUser(userId uuid.UUID, id uuid.UUID, r *repo) error {
+	var idProduct string
+	query := fmt.Sprintf(`SELECT id FROM products WHERE user_id = '%s' and id = '%s'`, userId, id)
+
+	err := r.db.QueryRow(query).Scan(&idProduct)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return errors.New("product is not owned by this user")
+	}
+
+	return nil
+}
+
 func (r *repo) UpdateProduct(product entity.Product) error {
+	err := GetProductUser(product.UserID, product.ID, r)
+	if err != nil {
+		return err
+	}
+
 	query := `UPDATE products set name = :name, price = :price, stock = :stock, image_url = :image_url,
 							condition = :condition, is_purchasable = :is_purchasable, tags = :tags
 							WHERE id = :id`
@@ -145,7 +163,11 @@ func (r *repo) UpdateProduct(product entity.Product) error {
 	return nil
 }
 
-func (r *repo) DeleteProduct(id uuid.UUID) error {
+func (r *repo) DeleteProduct(id uuid.UUID, userId uuid.UUID) error {
+	err := GetProductUser(userId, id, r)
+	if err != nil {
+		return err
+	}
 	query := `DELETE FROM products WHERE id = $1`
 
 	res, err := r.db.Exec(query, id)

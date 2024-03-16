@@ -45,12 +45,15 @@ func (c *Controller) UpdateProduct(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
+
 	// Check, if received JSON data is valid.
 	if err := ctx.BodyParser(product); err != nil {
 		return ctx.Status(500).JSON(fiber.Map{"message": "internal server error"})
 	}
 
 	product.ID = id
+	product.UserID = userId
 
 	err = c.svc.UpdateProduct(*product)
 	if err != nil {
@@ -98,12 +101,14 @@ func (c *Controller) GetDetailProduct(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) DeleteProduct(ctx *fiber.Ctx) error {
+	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
+
 	id, err := uuid.Parse(ctx.Params("productId"))
 	if err != nil {
 		return err
 	}
 
-	err = c.svc.DeleteProduct(id)
+	err = c.svc.DeleteProduct(id, userId)
 	if err != nil {
 		return err
 	}
@@ -119,11 +124,14 @@ func (c *Controller) GetListProduct(ctx *fiber.Ctx) error {
 
 	var products []entity.Product
 	var limit, offset int = 0, 0
+	var userId uuid.UUID
 
-	userId, _ := uuid.Parse(ctx.Locals("user_id").(string))
-
-	// Check, if received JSON data is valid.
 	ctx.QueryParser(keys)
+
+	// check if userOnly == true
+	if *keys.UserOnly {
+		userId, _ = uuid.Parse(ctx.Locals("user_id").(string))
+	}
 
 	products, err := c.svc.GetListProduct(*keys, userId)
 	if err != nil {
