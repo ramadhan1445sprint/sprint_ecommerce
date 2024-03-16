@@ -217,6 +217,12 @@ func (r *repo) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produ
 		conditions = append(conditions, fmt.Sprintf("name LIKE '%%%s%%'", *keys.Search))
 	}
 
+	if keys.UserOnly != nil {
+		if *keys.UserOnly {
+			conditions = append(conditions, fmt.Sprintf("user_id = '%s'", userId))
+		}
+	}
+
 	// Check if any conditions were provided
 	whereClause := ""
 	if len(conditions) > 0 {
@@ -238,21 +244,13 @@ func (r *repo) GetListProduct(keys entity.Key, userId uuid.UUID) ([]entity.Produ
 		offsetClause = fmt.Sprintf("OFFSET %d", *keys.Offset)
 	}
 
-	userClause := ""
-	if keys.UserOnly != nil {
-		if *keys.UserOnly {
-			userClause = fmt.Sprintf("INNER JOIN users u ON products.user_id = u.id and u.id = %s", userId)
-		}
-	}
-
 	query := fmt.Sprintf(`
         SELECT id, user_id, name, price, stock, image_url, condition, is_purchasable
         FROM products
-        %s
 				%s
         %s
         %s
-        %s`, userClause, whereClause, orderByClause, limitClause, offsetClause)
+        %s`, whereClause, orderByClause, limitClause, offsetClause)
 
 	// Execute the query
 	var products []entity.Product
