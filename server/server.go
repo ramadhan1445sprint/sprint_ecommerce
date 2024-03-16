@@ -59,13 +59,14 @@ func NewServer(db *sqlx.DB) *Server {
 
 		method := ctx.Method()
 		path := ctx.Route().Path
-		statusCode := strconv.Itoa(ctx.Response().StatusCode())
+		rawCode := ctx.Response().StatusCode()
+		statusCode := strconv.Itoa(rawCode)
 		fmt.Println("Default Status Code", ctx.Response().StatusCode())
 
 		if err != nil {
 			if customError, ok := err.(customErr.CustomError); ok {
 				statusCode = strconv.Itoa(customError.Status())
-			} else {
+			} else if rawCode == fiber.StatusOK || rawCode == fiber.StatusCreated {
 				statusCode = "500"
 			}
 		}
