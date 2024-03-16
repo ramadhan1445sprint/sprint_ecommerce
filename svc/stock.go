@@ -43,7 +43,7 @@ func (s *stockSvc) UpdateStock(productReq *entity.StockUpdateRequest, productId 
 	}
 
 	if err := s.repo.CheckProductByUserId(userId, productId); err != nil {
-		if err.Error() == "" {
+		if err.Error() == "not allowed" {
 			return 403, err
 		} else {
 			return 500, err

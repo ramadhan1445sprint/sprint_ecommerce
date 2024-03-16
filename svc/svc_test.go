@@ -127,25 +127,26 @@ func TestUpdateBankAccount(t *testing.T) {
 	testCases := []struct {
 		name        string
 		input       entity.BankAccountUpdateRequest
+		userId		string
 		errExpected bool
 	}{
-		{"Test update bank account success", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("update svc 2"), AccountName: strPtr("dadang svc 2"), AccountNumber: intPtr(123454)}, false},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: nil, AccountNumber: intPtr(23123)}, true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: nil}, true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: intPtr(23123)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: intPtr(0)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(123)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("dwdwd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, true},
+		{"Test update bank account success", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("update svc 2"), AccountName: strPtr("dadang svc 2"), AccountNumber: intPtr(123454)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", false},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: nil, AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: nil}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("dwdwd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, err := bankAccountSvc.UpdateBankAccount(&tc.input)
+			status, err := bankAccountSvc.UpdateBankAccount(&tc.input, tc.userId)
 
 			if tc.errExpected {
 				if err == nil {
@@ -178,15 +179,16 @@ func TestDeleteBankAccount(t *testing.T) {
 	testCases := []struct {
 		name        string
 		input       string
+		userId      string
 		errExpected bool
 	}{
-		{"Test delete bank account success", "fd10ed3b-5d94-4c3f-97d2-deaf99644efd", false},
-		{"Test delete bank account failed", "99999", true},
+		{"Test delete bank account success", "fd10ed3b-5d94-4c3f-97d2-deaf99644efd", "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", false},
+		{"Test delete bank account failed", "99999", "e2bb8ffa-d01c-41d0-a438-152f6469b4f1", true},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, err := bankAccountSvc.DeleteBankAccount(tc.input)
+			status, err := bankAccountSvc.DeleteBankAccount(tc.input, tc.userId)
 
 			if tc.errExpected {
 				if err == nil {

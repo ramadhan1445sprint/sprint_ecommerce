@@ -12,6 +12,7 @@ type BankAccountRepoInterface interface {
 	CreateBankAccount(bankAccount *entity.BankAccount) error
 	UpdateBankAccount(bankAccount *entity.BankAccount) error
 	DeleteBankAccount(bankAccountID string) error
+	CheckBankAccountByUserId(userId string, bankId string) error
 }
 
 func NewBankAccountRepo(db *sqlx.DB) BankAccountRepoInterface {
@@ -67,6 +68,22 @@ func (r *bankAccountRepo) DeleteBankAccount(bankAccountID string) error {
 
 	if rowsEffected == 0 {
 		return errors.New("bank account not found")
+	}
+
+	return nil
+}
+
+func (r *bankAccountRepo) CheckBankAccountByUserId(userId string, bankId string) error {
+	var res *int
+
+	err := r.db.Get(&res, "select count(id) from bank_accounts where user_id = $1 and id = $2", userId, bankId)
+
+	if err != nil {
+		return err
+	}
+
+	if *res == 0 {
+		return errors.New("not allowed")
 	}
 
 	return nil

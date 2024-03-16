@@ -57,6 +57,7 @@ func (c *BankAccountController) CreateBankAccount(ctx *fiber.Ctx) error {
 
 func (c *BankAccountController) UpdateBankAccount(ctx *fiber.Ctx) error {
 	var message string
+	userId := ctx.Locals("user_id").(string)
 
 	bankAccountId := ctx.Params("bankAccountId")
 
@@ -68,7 +69,7 @@ func (c *BankAccountController) UpdateBankAccount(ctx *fiber.Ctx) error {
 
 	req.ID = &bankAccountId
 
-	status, err := c.svc.UpdateBankAccount(req)
+	status, err := c.svc.UpdateBankAccount(req, userId)
 
 	if err != nil {
 		message = err.Error()
@@ -85,10 +86,11 @@ func (c *BankAccountController) UpdateBankAccount(ctx *fiber.Ctx) error {
 
 func (c *BankAccountController) DeleteBankAccount(ctx *fiber.Ctx) error {
 	var message string
+	userId := ctx.Locals("user_id").(string)
 
 	bankAccountId := ctx.Params("bankAccountId")
 
-	status, err := c.svc.DeleteBankAccount(bankAccountId)
+	status, err := c.svc.DeleteBankAccount(bankAccountId, userId)
 
 	if err != nil {
 		message = err.Error()

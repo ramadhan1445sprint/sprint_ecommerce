@@ -207,7 +207,7 @@ func TestUpdateStock(t *testing.T) {
 		input       entity.Stock
 		errExpected bool
 	}{
-		{"Test create payment success", entity.Stock{ID: "43826207-2a72-40c5-a696-35cc66c32e2e", Stock: 999}, false},
+		{"Test create payment success", entity.Stock{ID: "36b11d41-144e-478e-876f-e6118e4b23db", Stock: 999}, false},
 		{"Test create payment failed", entity.Stock{ID: "dwad", Stock: 2}, true},
 	}
 

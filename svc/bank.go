@@ -1,6 +1,8 @@
 package svc
 
 import (
+	"fmt"
+
 	"github.com/ramadhan1445sprint/sprint_ecommerce/entity"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/repo"
 	"github.com/ramadhan1445sprint/sprint_ecommerce/utils"
@@ -9,8 +11,8 @@ import (
 type BankAccountSvcInterface interface {
 	GetBankAccount(userId string) ([]entity.BankAccountGetResponse, int, error)
 	CreateBankAccount(bankAccount *entity.BankAccountCreateRequest, userId string) (int, error)
-	UpdateBankAccount(bankAccount *entity.BankAccountUpdateRequest) (int, error)
-	DeleteBankAccount(bankAccountID string) (int, error)
+	UpdateBankAccount(bankAccount *entity.BankAccountUpdateRequest, userId string) (int, error)
+	DeleteBankAccount(bankAccountID string, userId string) (int, error)
 }
 
 func NewBankAccounthSvc(repo repo.BankAccountRepoInterface) BankAccountSvcInterface {
@@ -69,7 +71,7 @@ func (s *bankAccountSvc) CreateBankAccount(req *entity.BankAccountCreateRequest,
 	return 200, nil
 }
 
-func (s *bankAccountSvc) UpdateBankAccount(req *entity.BankAccountUpdateRequest) (int, error) {
+func (s *bankAccountSvc) UpdateBankAccount(req *entity.BankAccountUpdateRequest, userId string) (int, error) {
 	status, err := utils.ValidateUpdateBankRequest(req)
 
 	if err != nil {
@@ -83,6 +85,14 @@ func (s *bankAccountSvc) UpdateBankAccount(req *entity.BankAccountUpdateRequest)
 		AccountNumber: *req.AccountNumber,
 	}
 
+	if err := s.repo.CheckBankAccountByUserId(userId, *req.ID); err != nil {
+		if err.Error() == "not allowed" {
+			return 403, err
+		} else {
+			return 500, err
+		}
+	}
+
 	if err = s.repo.UpdateBankAccount(&bankAccount); err != nil {
 		return 500, err
 	}
@@ -90,7 +100,16 @@ func (s *bankAccountSvc) UpdateBankAccount(req *entity.BankAccountUpdateRequest)
 	return 200, nil
 }
 
-func (s *bankAccountSvc) DeleteBankAccount(bankAccountID string) (int, error) {
+func (s *bankAccountSvc) DeleteBankAccount(bankAccountID string, userId string) (int, error) {
+
+	if err := s.repo.CheckBankAccountByUserId(userId, bankAccountID); err != nil {
+		if err.Error() == "not allowed" {
+			return 403, err
+		} else {
+			return 500, err
+		}
+	}
+
 	if err := s.repo.DeleteBankAccount(bankAccountID); err != nil {
 		var status int
 		if err.Error() == "bank account not found" {
