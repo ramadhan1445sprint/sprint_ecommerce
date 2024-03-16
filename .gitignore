@@ -27,3 +27,6 @@ setenv.sh
 
 # Binary
 main
+
+# certificate
+*.pem
