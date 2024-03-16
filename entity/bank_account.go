@@ -5,13 +5,13 @@ type BankAccount struct {
 	AccountName   string `json:"bankAccountName" db:"account_name"`
 	ID            string `json:"bankAccountId" db:"id"`
 	UserID        string `db:"user_id"`
-	AccountNumber int `json:"bankAccountNumber" db:"account_number"`
+	AccountNumber string `json:"bankAccountNumber" db:"account_number"`
 }
 
 type BankAccountCreateRequest struct {
 	Name          *string `json:"bankName"`
 	AccountName   *string `json:"bankAccountName"`
-	AccountNumber *int   `json:"bankAccountNumber"`
+	AccountNumber *string   `json:"bankAccountNumber"`
 }
 
 type BankAccountCreateResponse struct {
@@ -19,15 +19,15 @@ type BankAccountCreateResponse struct {
 }
 
 type BankAccountGetResponse struct {
-	Name          string `json:"bankName"`
-	AccountName   string `json:"bankAccountName"`
+	Name          string 	`json:"bankName"`
+	AccountName   string 	`json:"bankAccountName"`
 	ID            string   `json:"bankAccountId"`
-	AccountNumber int   `json:"bankAccountNumber"`
+	AccountNumber string   `json:"bankAccountNumber"`
 }
 
 type BankAccountUpdateRequest struct {
-	Name          *string `json:"bankName"`
-	AccountName   *string `json:"bankAccountName"`
+	Name          *string 	`json:"bankName"`
+	AccountName   *string 	`json:"bankAccountName"`
 	ID            *string   `json:"bankAccountId"`
-	AccountNumber *int   `json:"bankAccountNumber"`
+	AccountNumber *string   `json:"bankAccountNumber"`
 }

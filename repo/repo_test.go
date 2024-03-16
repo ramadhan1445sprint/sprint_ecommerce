@@ -24,8 +24,8 @@ func TestCreateBankAccount(t *testing.T) {
 		input       entity.BankAccount
 		errExpected bool
 	}{
-		{"Test create bank", entity.BankAccount{UserID: "7739f6f4-8e6e-42b4-bed0-d87ca4499353", Name: "BCA", AccountName: "Ilham Nuryanto", AccountNumber: 1234567}, false},
-		{"Test create bank 2", entity.BankAccount{UserID: "7739f6f4-8e6e-42b4-bed0-d87ca4499353", Name: "Mandiri", AccountName: "Ilham Nuryanto", AccountNumber: 432145}, false},
+		{"Test create bank", entity.BankAccount{UserID: "7d05089b-23a1-4c95-98f7-840f144428b3", Name: "BCA", AccountName: "Ilham Nuryanto", AccountNumber: "1234567"}, false},
+		{"Test create bank 2", entity.BankAccount{UserID: "7d05089b-23a1-4c95-98f7-840f144428b3", Name: "Mandiri", AccountName: "Ilham Nuryanto", AccountNumber: "432145"}, false},
 	}
 
 	for _, tc := range testCases {
@@ -100,8 +100,8 @@ func TestUpdateBankAccount(t *testing.T) {
 		input       entity.BankAccount
 		errExpected bool
 	}{
-		{"Test update bank account success", entity.BankAccount{ID: "02086ff6-7df3-44a8-aebb-4906f0360c39", Name: "BCA updated", AccountName: "ilham updated", AccountNumber: 123123}, false},
-		{"Test update bank account failed", entity.BankAccount{ID: "99999", Name: "BCA", AccountName: "dadang", AccountNumber: 1234}, true},
+		{"Test update bank account success", entity.BankAccount{ID: "02086ff6-7df3-44a8-aebb-4906f0360c39", Name: "BCA updated", AccountName: "ilham updated", AccountNumber: "123123"}, false},
+		{"Test update bank account failed", entity.BankAccount{ID: "99999", Name: "BCA", AccountName: "dadang", AccountNumber: "1234"}, true},
 	}
 
 	for _, tc := range testCases {

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bank_accounts (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     bank_name varchar NOT NULL,
     account_name varchar NOT NULL,
-    account_number int4 NOT NULL,
+    account_number varchar NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NULL,
     user_id uuid NOT NULL,

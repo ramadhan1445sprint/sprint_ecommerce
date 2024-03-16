@@ -83,7 +83,7 @@ func ValidateCreateBankRequest(req *entity.BankAccountCreateRequest) (int, error
 		return 400, errors.New("bank account name should be minimum 5 and maximum 15 length")
 	}
 
-	if *req.AccountNumber < 10000 || *req.AccountNumber > 100000000000000 {
+	if len(*req.AccountNumber) < 5 || len(*req.AccountNumber) > 15 {
 		return 400, errors.New("bank account number should be minimum 5 and maximum 15 length")
 	}
 
@@ -119,7 +119,7 @@ func ValidateUpdateBankRequest(req *entity.BankAccountUpdateRequest) (int, error
 		return 400, errors.New("bank account name should be minimum 5 and maximum 15 length")
 	}
 
-	if *req.AccountNumber < 10000 || *req.AccountNumber > 100000000000000 {
+	if len(*req.AccountNumber) < 5 || len(*req.AccountNumber) > 15 {
 		return 400, errors.New("bank account number should be minimum 5 and maximum 15 length")
 	}
 

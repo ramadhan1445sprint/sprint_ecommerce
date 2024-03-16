@@ -36,17 +36,17 @@ func TestCreateBankAccount(t *testing.T) {
 		statusExpected 		int
 		errExpected 		bool
 	}{
-		{"Test create bank success", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 200, false},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: nil, AccountNumber: intPtr(23123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: nil}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: intPtr(23123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: intPtr(0)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(123)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
-		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, "7739f6f4-8e6e-42b4-bed0-d87ca4499353", 400, true},
+		{"Test create bank success", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: strPtr("23123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 200, false},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: strPtr("23123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: nil, AccountNumber: strPtr("23123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: nil}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: strPtr("23123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: strPtr("23123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("0")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("0")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: strPtr("0")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("123")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
+		{"Test create bank failed", entity.BankAccountCreateRequest{Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("1234567890123456")}, "7d05089b-23a1-4c95-98f7-840f144428b3", 400, true},
 	}
 
 	for _, tc := range testCases {
@@ -87,7 +87,7 @@ func TestGetBankAccount(t *testing.T) {
 		input       string
 		errExpected bool
 	}{
-		{"Test get bank account success", "7739f6f4-8e6e-42b4-bed0-d87ca4499353", false},
+		{"Test get bank account success", "7d05089b-23a1-4c95-98f7-840f144428b3", false},
 		{"Test get bank account fail", "99999", true},
 	}
 
@@ -130,18 +130,18 @@ func TestUpdateBankAccount(t *testing.T) {
 		userId		string
 		errExpected bool
 	}{
-		{"Test update bank account success", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("update svc 2"), AccountName: strPtr("dadang svc 2"), AccountNumber: intPtr(123454)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", false},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: nil, AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank account success", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("update svc 2"), AccountName: strPtr("dadang svc 2"), AccountNumber: strPtr("123454")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", false},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: nil, AccountName: strPtr("svc taest name"), AccountNumber: strPtr("23123")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: nil, AccountNumber: strPtr("23123")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
 		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("svc taest name"), AccountNumber: nil}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: intPtr(23123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: intPtr(0)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(123)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
-		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("dwdwd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: intPtr(1234567890123456)}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr(""), AccountName: strPtr("svc taest name"), AccountNumber: strPtr("23123")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test failed bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr(""), AccountNumber: strPtr("23123")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("0")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test iadiajwdijaidjaiddawjiawjd"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("0")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dkoakdoak oakwdoawkdo koakwdoakwdkkdoaw"), AccountNumber: strPtr("0")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("123")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("fd10ed3b-5d94-4c3f-97d2-deaf99644efd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("1234567890123456")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
+		{"Test update bank failed", entity.BankAccountUpdateRequest{ID: strPtr("dwdwd"), Name: strPtr("svc test"), AccountName: strPtr("dadawd"), AccountNumber: strPtr("1234567890123456")}, "e2bb8ffa-d01c-41d0-a438-152f6469b4f2", true},
 	}
 
 	for _, tc := range testCases {
